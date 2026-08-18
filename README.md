@@ -18,6 +18,8 @@ npm run build
 
 ## Cloudflare Pages
 
+The production Pages project is `kitworks` (`https://kitworks.pages.dev/`).
+
 Use the following Pages build settings:
 
 - Framework preset: `None`
@@ -30,6 +32,12 @@ Use the following Pages build settings:
 The Pages build uses Advanced Mode with a pre-bundled `_worker.js`. Do not point
 Pages at `dist/client`; that directory contains browser assets only and cannot
 serve the vinext RSC/SSR application by itself.
+
+`dist/pages` is also committed as a verified deployment artifact. This lets the
+existing Git integration deploy safely even while its dashboard build command
+is blank. After any future source change, run `npm run build:pages` and commit
+the refreshed `dist/pages` output. If the dashboard build command is set to
+`npm run build:pages`, Cloudflare will regenerate the same output automatically.
 
 ## Included Shape
 
