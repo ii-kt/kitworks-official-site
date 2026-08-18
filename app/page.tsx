@@ -69,7 +69,7 @@ const nav: Array<{
     links: [
       { label: "Start a project", labelJa: "プロジェクト相談", panel: "project", soon: true },
       { label: "Availability", labelJa: "ご相談可能時期", panel: "availability", soon: true },
-      { label: "System info", labelJa: "このサイトについて", panel: "system", soon: true },
+      { label: "System info", labelJa: "このサイトについて", panel: "system" },
     ],
   },
 ];

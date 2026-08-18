@@ -51,8 +51,13 @@ test("keeps the entrance as the only destination router", () => {
 
   assert.equal(
     occurrences(navModel, /soon:\s*true/g),
-    destinationIds.length,
-    "every entrance destination must remain marked SOON while its content is under review",
+    destinationIds.length - 1,
+    "every entrance destination except System info must remain marked SOON",
+  );
+  assert.doesNotMatch(
+    navModel,
+    /\{ label: "System info"[^}]*soon:/,
+    "System info must remain available without a SOON badge",
   );
 
   assert.match(page, /ref=\{screenRef\}[\s\S]*?openPanel\("index",\s*event\.currentTarget\)/);
