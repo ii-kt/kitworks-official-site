@@ -1,0 +1,1927 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>KiT Works — Windows UI Motion Prototype</title>
+  <style>
+    @property --beam-angle {
+      syntax: "<angle>";
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    :root {
+      --win-gray: #c0c0c0;
+      --win-light: #ffffff;
+      --win-mid: #dfdfdf;
+      --win-shadow: #808080;
+      --win-dark: #000000;
+      --win-blue: #000080;
+      --win-blue-2: #082a9a;
+      --signal: #dfff55;
+      --signal-strong: #efffa4;
+      --desktop-ink: #f7f0dc;
+      --ui-font: Tahoma, "MS UI Gothic", "MS PGothic", "MS Sans Serif", sans-serif;
+      --jp-font: "MS UI Gothic", "Yu Gothic UI", Meiryo, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #173a78;
+      font-family: var(--ui-font);
+    }
+
+    button,
+    input {
+      color: inherit;
+      font: inherit;
+    }
+
+    button { -webkit-tap-highlight-color: transparent; }
+
+    ::selection {
+      color: #fff;
+      background: var(--win-blue);
+    }
+
+    .desktop {
+      position: relative;
+      width: 100vw;
+      height: 100dvh;
+      min-height: 560px;
+      overflow: hidden;
+      isolation: isolate;
+      color: var(--desktop-ink);
+      background: #173a78;
+    }
+
+    .scene,
+    .scene__image,
+    .scene__tint,
+    .scene__grain,
+    .scene__veil {
+      position: absolute;
+      inset: 0;
+    }
+
+    .scene { z-index: 0; overflow: hidden; }
+
+    .scene__image {
+      inset: -3%;
+      background: url("../public/scene-v2.png") center 58% / cover no-repeat;
+      filter: saturate(.92) brightness(.79);
+      transform: scale(1.045);
+      animation: scene-breathe 9s ease-in-out infinite;
+    }
+
+    .scene__tint {
+      background:
+        radial-gradient(circle at 50% 58%, rgba(99, 133, 255, .08), transparent 25%),
+        linear-gradient(180deg, rgba(8, 13, 68, .34), rgba(16, 10, 45, .62));
+      mix-blend-mode: multiply;
+    }
+
+    .scene__veil {
+      z-index: 3;
+      background: rgba(10, 7, 38, .33);
+      backdrop-filter: blur(3.6px) saturate(.78);
+      transition: background .5s ease, backdrop-filter .5s ease;
+    }
+
+    .scene__grain {
+      z-index: 4;
+      inset: -40%;
+      opacity: .075;
+      pointer-events: none;
+      background: repeating-radial-gradient(circle at 23% 41%, rgba(255,255,255,.9) 0 .45px, transparent .7px 2.4px);
+      mix-blend-mode: soft-light;
+      animation: grain .24s steps(2) infinite;
+    }
+
+    .ghost-header {
+      position: absolute;
+      z-index: 2;
+      inset: 0 0 auto;
+      display: grid;
+      grid-template-columns: minmax(210px, 1.05fr) repeat(3, minmax(120px, .75fr));
+      gap: clamp(28px, 5vw, 90px);
+      padding: 27px 4vw 0;
+      color: #fff8e7;
+      opacity: .42;
+      filter: blur(.65px) saturate(.75);
+      text-shadow: 0 2px 12px rgba(3, 7, 28, .4);
+      transition: opacity .45s ease, filter .45s ease;
+    }
+
+    .ghost-brand b {
+      display: block;
+      margin-bottom: 10px;
+      font: 500 25px/1 Georgia, "Times New Roman", serif;
+      letter-spacing: -.04em;
+    }
+
+    .ghost-brand p {
+      max-width: 210px;
+      margin: 0;
+      font: 10px/1.45 Arial, sans-serif;
+    }
+
+    .ghost-nav b,
+    .ghost-nav span {
+      display: block;
+      font: 11px/1.55 Georgia, "Times New Roman", serif;
+    }
+
+    .ghost-nav b { margin-bottom: 5px; font-weight: 400; }
+    .ghost-nav span { opacity: .82; }
+
+    .crt-origin {
+      position: absolute;
+      z-index: 5;
+      left: 50%;
+      top: 60.5%;
+      width: clamp(14px, 1.4vw, 22px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(231, 255, 99, .7);
+      border-radius: 50%;
+      opacity: .56;
+      box-shadow: 0 0 20px 4px rgba(223,255,85,.28);
+      transform: translate(-50%, -50%);
+      animation: origin-pulse 2.4s ease-in-out infinite;
+    }
+
+    .prototype-stamp {
+      position: absolute;
+      z-index: 9;
+      top: 16px;
+      right: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      border: 1px solid rgba(255,255,255,.36);
+      color: rgba(255,255,255,.72);
+      background: rgba(5,8,36,.28);
+      font: 600 8px/1 var(--ui-font);
+      letter-spacing: .12em;
+      pointer-events: none;
+    }
+
+    .prototype-stamp i {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 8px var(--signal);
+    }
+
+    .window-position {
+      position: absolute;
+      z-index: 20;
+      top: 66px;
+      right: 3vw;
+      bottom: 44px;
+      left: 3vw;
+      min-width: 700px;
+      min-height: 470px;
+      transform: translate3d(var(--drag-x, 0px), var(--drag-y, 0px), 0);
+      transition: top .58s cubic-bezier(.16,1,.3,1), right .58s cubic-bezier(.16,1,.3,1), bottom .58s cubic-bezier(.16,1,.3,1), left .58s cubic-bezier(.16,1,.3,1);
+    }
+
+    .window-position.is-maximized {
+      top: 6px;
+      right: 6px;
+      bottom: 38px;
+      left: 6px;
+      min-width: 0;
+      min-height: 0;
+      --drag-x: 0px !important;
+      --drag-y: 0px !important;
+    }
+
+    .window-position.is-hidden { pointer-events: none; }
+    .window-position.is-preparing .win-window { visibility: hidden; }
+
+    .win-window {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      padding: 3px;
+      overflow: hidden;
+      color: #000;
+      background: var(--win-gray);
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-dark);
+      border-bottom: 2px solid var(--win-dark);
+      box-shadow:
+        18px 28px 65px rgba(2, 3, 20, .46),
+        0 0 0 1px var(--win-gray),
+        0 0 0 2px rgba(0,0,0,.48);
+      transform-origin: 50% 60%;
+      will-change: transform, opacity, clip-path, filter;
+    }
+
+    .window-position.is-hidden .win-window { visibility: hidden; }
+
+    .titlebar {
+      position: relative;
+      display: flex;
+      flex: 0 0 27px;
+      align-items: center;
+      min-height: 27px;
+      padding: 2px 2px 2px 5px;
+      color: #fff;
+      background: linear-gradient(90deg, var(--win-blue), var(--win-blue-2) 68%, #164bc7);
+      user-select: none;
+      touch-action: none;
+      cursor: default;
+    }
+
+    .titlebar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(110deg, transparent 0 44%, rgba(255,255,255,.16) 49%, transparent 54% 100%);
+      background-size: 250% 100%;
+      animation: title-glint 5.8s ease-in-out infinite;
+    }
+
+    .app-icon,
+    .start-mark {
+      position: relative;
+      display: inline-grid;
+      flex: 0 0 18px;
+      width: 18px;
+      height: 18px;
+      margin-right: 6px;
+      border: 1px solid #fff;
+      background: #050922;
+      box-shadow: inset -2px -2px #5c6177;
+      place-items: center;
+    }
+
+    .app-icon::before,
+    .start-mark::before {
+      content: "K";
+      color: var(--signal);
+      font: 700 10px/1 Arial, sans-serif;
+    }
+
+    .titlebar__title {
+      min-width: 0;
+      overflow: hidden;
+      font: 700 12px/1 var(--ui-font);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-shadow: 1px 1px #000;
+    }
+
+    .titlebar__signal {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 13px;
+      opacity: .72;
+      font: 700 8px/1 var(--ui-font);
+      letter-spacing: .12em;
+    }
+
+    .titlebar__signal i {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 7px var(--signal);
+      animation: signal-pulse 1.8s ease-in-out infinite;
+    }
+
+    .window-controls {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      gap: 2px;
+      margin-left: auto;
+    }
+
+    .win-button,
+    .window-control,
+    .toolbar-button,
+    .tree-button,
+    .start-button,
+    .task-button,
+    .execute-button,
+    .reopen-button,
+    .dialog-button {
+      position: relative;
+      border: 0;
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-dark);
+      border-bottom: 2px solid var(--win-dark);
+      border-radius: 0;
+      background: var(--win-gray);
+      cursor: default;
+      outline: none;
+    }
+
+    .window-control {
+      display: grid;
+      width: 22px;
+      height: 20px;
+      padding: 0;
+      color: #000;
+      place-items: center;
+      font: 900 12px/1 Arial, sans-serif;
+    }
+
+    .window-control:active,
+    .toolbar-button:active,
+    .start-button[aria-expanded="true"],
+    .start-button:active,
+    .task-button:active,
+    .execute-button:active,
+    .reopen-button:active,
+    .dialog-button:active {
+      padding-top: 2px;
+      padding-left: 2px;
+      border-top-color: var(--win-dark);
+      border-left-color: var(--win-dark);
+      border-right-color: var(--win-light);
+      border-bottom-color: var(--win-light);
+      box-shadow: inset 1px 1px var(--win-shadow);
+    }
+
+    .window-control:focus-visible,
+    .toolbar-button:focus-visible,
+    .tree-button:focus-visible,
+    .start-button:focus-visible,
+    .task-button:focus-visible,
+    .execute-button:focus-visible,
+    .reopen-button:focus-visible,
+    .dialog-button:focus-visible,
+    .menu-button:focus-visible {
+      outline: 1px dotted #000;
+      outline-offset: -4px;
+    }
+
+    .window-control--min::before { content: ""; width: 9px; height: 2px; margin-top: 7px; background: #000; }
+    .window-control--max::before { content: ""; width: 10px; height: 9px; border: 2px solid #000; border-top-width: 3px; }
+    .window-control--close { font-size: 15px; }
+
+    .menu-strip {
+      display: flex;
+      flex: 0 0 26px;
+      align-items: center;
+      gap: 1px;
+      min-height: 26px;
+      padding: 1px 3px 0;
+      background: var(--win-gray);
+    }
+
+    .menu-button {
+      height: 22px;
+      border: 0;
+      padding: 0 9px;
+      background: transparent;
+      color: #000;
+      font: 11px/1 var(--jp-font);
+      cursor: default;
+    }
+
+    .menu-button:hover,
+    .menu-button[aria-expanded="true"] {
+      color: #fff;
+      background: var(--win-blue);
+    }
+
+    .menu-button u { text-underline-offset: 2px; }
+
+    .toolbar {
+      display: flex;
+      flex: 0 0 42px;
+      align-items: stretch;
+      gap: 3px;
+      min-height: 42px;
+      padding: 3px 4px;
+      border-top: 1px solid var(--win-light);
+      border-bottom: 1px solid var(--win-shadow);
+      background: var(--win-gray);
+    }
+
+    .toolbar-handle {
+      width: 3px;
+      margin: 1px 2px 1px 0;
+      border-left: 1px solid var(--win-light);
+      border-right: 1px solid var(--win-shadow);
+    }
+
+    .toolbar-button {
+      display: grid;
+      min-width: 49px;
+      padding: 2px 7px;
+      color: #000;
+      place-items: center;
+      font: 10px/1 var(--jp-font);
+    }
+
+    .toolbar-button span {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--win-blue);
+      font: 900 14px/1 Arial, sans-serif;
+    }
+
+    .toolbar-divider {
+      width: 2px;
+      margin: 2px 3px;
+      border-left: 1px solid var(--win-shadow);
+      border-right: 1px solid var(--win-light);
+    }
+
+    .address-bar {
+      display: grid;
+      flex: 0 0 28px;
+      grid-template-columns: 58px 1fr 31px;
+      align-items: center;
+      gap: 4px;
+      min-height: 28px;
+      padding: 3px 4px;
+      border-top: 1px solid var(--win-light);
+      border-bottom: 1px solid var(--win-shadow);
+      color: #000;
+      background: var(--win-gray);
+      font: 11px/1 var(--jp-font);
+    }
+
+    .address-value {
+      display: flex;
+      align-items: center;
+      height: 20px;
+      min-width: 0;
+      padding: 1px 5px;
+      overflow: hidden;
+      border-top: 2px solid var(--win-shadow);
+      border-left: 2px solid var(--win-shadow);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      background: #fff;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .address-value::before {
+      content: "";
+      width: 11px;
+      height: 9px;
+      margin-right: 6px;
+      border: 1px solid #5a4700;
+      background: #ffe44a;
+      box-shadow: inset 0 3px #fff49a;
+    }
+
+    .address-go {
+      display: grid;
+      width: 26px;
+      height: 20px;
+      padding: 0;
+      color: #000;
+      place-items: center;
+    }
+
+    .explorer {
+      position: relative;
+      display: grid;
+      flex: 1 1 auto;
+      grid-template-columns: clamp(185px, 18vw, 258px) minmax(0, 1fr);
+      min-height: 0;
+      margin: 2px 0;
+      overflow: hidden;
+      border-top: 2px solid var(--win-shadow);
+      border-left: 2px solid var(--win-shadow);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      background: #fff;
+    }
+
+    .tree-pane {
+      min-width: 0;
+      overflow: auto;
+      border-right: 1px solid var(--win-shadow);
+      color: #000;
+      background: #fff;
+      scrollbar-color: var(--win-gray) #fff;
+      font: 11px/1.2 var(--jp-font);
+    }
+
+    .tree-title {
+      position: sticky;
+      z-index: 2;
+      top: 0;
+      margin: 0;
+      padding: 7px 8px 6px;
+      color: #fff;
+      background: var(--win-blue);
+      font: 700 11px/1 var(--jp-font);
+    }
+
+    .tree-list {
+      position: relative;
+      margin: 8px 0 14px;
+      padding: 0 6px;
+      list-style: none;
+    }
+
+    .tree-list::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      bottom: 15px;
+      left: 22px;
+      border-left: 1px dotted #777;
+    }
+
+    .tree-row { position: relative; margin: 1px 0; }
+    .tree-row--root { margin-bottom: 6px; }
+    .tree-row--child { padding-left: 21px; }
+
+    .tree-button {
+      position: relative;
+      display: flex;
+      width: 100%;
+      min-height: 27px;
+      align-items: center;
+      border: 0;
+      padding: 3px 5px;
+      text-align: left;
+      background: transparent;
+      font: 11px/1.15 var(--jp-font);
+      cursor: default;
+    }
+
+    .tree-button:hover { background: #e9e9e9; }
+
+    .tree-button[aria-current="page"] {
+      color: #fff;
+      background: var(--win-blue);
+      outline: 1px dotted #fff;
+      outline-offset: -3px;
+    }
+
+    .tree-icon {
+      position: relative;
+      flex: 0 0 17px;
+      width: 17px;
+      height: 13px;
+      margin-right: 7px;
+      border: 1px solid #5b4700;
+      background: #f7d936;
+      box-shadow: inset 1px 1px #fff49b, inset -2px -2px #c49a00;
+    }
+
+    .tree-icon::before {
+      content: "";
+      position: absolute;
+      left: 1px;
+      top: -4px;
+      width: 8px;
+      height: 4px;
+      border: 1px solid #5b4700;
+      border-bottom: 0;
+      background: #f7d936;
+    }
+
+    .tree-button[aria-current="page"] .tree-icon { filter: saturate(.75) brightness(1.2); }
+
+    .content-pane {
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      color: #101010;
+      background:
+        linear-gradient(90deg, rgba(0,0,128,.025) 1px, transparent 1px),
+        linear-gradient(rgba(0,0,128,.025) 1px, transparent 1px),
+        #fff;
+      background-size: 24px 24px;
+      font-family: var(--jp-font);
+    }
+
+    .content-inner {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      padding: clamp(22px, 3.4vw, 52px);
+      opacity: 1;
+      transform: translateZ(0);
+      transition: filter .25s ease, opacity .25s ease;
+    }
+
+    .content-inner::after {
+      content: "K:\\KIT-WORKS  •  EXTERNAL WORLD VISIBLE  •  SIGNAL ONLINE";
+      display: flex;
+      flex: 1 1 auto;
+      min-height: 54px;
+      align-items: flex-end;
+      margin-top: 28px;
+      padding-top: 18px;
+      border-top: 1px dotted #aaa;
+      color: #777;
+      font: 700 8px/1 var(--ui-font);
+      letter-spacing: .13em;
+    }
+
+    .content-inner.is-leaving {
+      opacity: .22;
+      filter: grayscale(1) blur(7px);
+    }
+
+    .document-kicker {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: clamp(17px, 2.4vh, 28px);
+      color: #565656;
+      font: 700 9px/1 var(--ui-font);
+      letter-spacing: .11em;
+    }
+
+    .document-kicker i {
+      width: 8px;
+      height: 8px;
+      border: 1px solid #536100;
+      border-radius: 50%;
+      background: var(--signal);
+      box-shadow: 0 0 0 2px rgba(223,255,85,.2), 0 0 10px rgba(154,190,0,.5);
+    }
+
+    .hero-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(210px, .65fr);
+      gap: clamp(24px, 5vw, 86px);
+      align-items: end;
+      padding-bottom: clamp(25px, 4vh, 48px);
+      border-bottom: 1px dotted #777;
+    }
+
+    .document-title {
+      margin: 0;
+      max-width: 880px;
+      color: #0a0a0a;
+      font: 700 clamp(42px, 5.5vw, 84px)/.94 var(--jp-font);
+      letter-spacing: -.055em;
+    }
+
+    .document-title .en {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--win-blue);
+      font: 700 10px/1 var(--ui-font);
+      letter-spacing: .16em;
+    }
+
+    .document-title .jp { display: block; }
+
+    .hero-copy {
+      margin: 19px 0 0;
+      max-width: 680px;
+      font: 13px/1.85 var(--jp-font);
+      letter-spacing: .02em;
+    }
+
+    .file-card {
+      position: relative;
+      min-height: 152px;
+      padding: 18px;
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-shadow);
+      border-bottom: 2px solid var(--win-shadow);
+      background: var(--win-gray);
+      box-shadow: 1px 1px #000;
+    }
+
+    .file-card__screen {
+      position: relative;
+      display: grid;
+      min-height: 112px;
+      padding: 16px;
+      overflow: hidden;
+      border-top: 2px solid #555;
+      border-left: 2px solid #555;
+      border-right: 2px solid #fff;
+      border-bottom: 2px solid #fff;
+      color: var(--signal-strong);
+      background: #03060a;
+      place-content: end start;
+      box-shadow: inset 0 0 24px rgba(120,167,50,.12);
+    }
+
+    .file-card__screen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .3;
+      background: repeating-linear-gradient(180deg, transparent 0 3px, rgba(255,255,255,.09) 4px);
+      animation: screen-flicker 3.8s steps(1) infinite;
+    }
+
+    .file-card__screen b {
+      position: relative;
+      font: 700 25px/1 var(--ui-font);
+      letter-spacing: -.06em;
+    }
+
+    .file-card__screen small {
+      position: relative;
+      margin-top: 8px;
+      color: #e7ebde;
+      font: 8px/1.4 var(--ui-font);
+      letter-spacing: .13em;
+    }
+
+    .fact-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin: clamp(22px, 3vh, 34px) 0;
+      border: 1px solid #777;
+      border-right: 0;
+      background: #fff;
+    }
+
+    .fact {
+      min-width: 0;
+      padding: 13px 15px;
+      border-right: 1px solid #777;
+    }
+
+    .fact small {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font: 700 8px/1 var(--ui-font);
+      letter-spacing: .13em;
+    }
+
+    .fact b {
+      display: block;
+      overflow: hidden;
+      font: 700 13px/1.3 var(--jp-font);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .detail-grid {
+      display: grid;
+      flex: 0 0 auto;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      min-height: 220px;
+    }
+
+    .group-box {
+      position: relative;
+      min-width: 0;
+      padding: 19px 17px 16px;
+      border: 1px solid #777;
+      background: rgba(255,255,255,.86);
+    }
+
+    .group-box legend,
+    .group-label {
+      position: absolute;
+      left: 11px;
+      top: -8px;
+      padding: 0 5px;
+      color: var(--win-blue);
+      background: #fff;
+      font: 700 10px/1 var(--jp-font);
+    }
+
+    .group-box ul {
+      display: grid;
+      gap: 10px;
+      margin: 4px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .group-box li {
+      position: relative;
+      padding-left: 17px;
+      font: 12px/1.55 var(--jp-font);
+    }
+
+    .group-box li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .55em;
+      width: 7px;
+      height: 7px;
+      border: 1px solid #566400;
+      background: var(--signal);
+    }
+
+    .group-box--action {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .group-box--action p {
+      margin: 5px 0 18px;
+      font: 12px/1.7 var(--jp-font);
+    }
+
+    .execute-button {
+      --beam-angle: 0deg;
+      position: relative;
+      align-self: flex-start;
+      min-width: 210px;
+      min-height: 38px;
+      padding: 7px 17px;
+      color: #000;
+      font: 700 11px/1 var(--jp-font);
+      isolation: isolate;
+    }
+
+    .execute-button::after,
+    .toolbar-button::after,
+    .window-control::after {
+      content: "";
+      position: absolute;
+      z-index: 3;
+      inset: -2px;
+      padding: 1px;
+      pointer-events: none;
+      opacity: 0;
+      background: conic-gradient(from var(--beam-angle), transparent 0 72%, var(--signal) 84%, #fff 90%, var(--signal) 94%, transparent 100%);
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+
+    .execute-button:hover::after,
+    .execute-button:focus-visible::after,
+    .toolbar-button:hover::after,
+    .toolbar-button:focus-visible::after,
+    .window-control:hover::after,
+    .window-control:focus-visible::after {
+      animation: beam 1s linear both;
+    }
+
+    .execute-button__label { position: relative; z-index: 4; }
+
+    .execute-button__progress {
+      position: absolute;
+      z-index: 1;
+      inset: 3px;
+      overflow: hidden;
+      opacity: 0;
+      background: #fff;
+    }
+
+    .execute-button__progress i {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: repeating-linear-gradient(90deg, var(--win-blue) 0 9px, transparent 9px 11px);
+    }
+
+    .execute-button.is-processing .execute-button__label {
+      color: #fff;
+      mix-blend-mode: difference;
+    }
+
+    .execute-button.is-processing .execute-button__progress { opacity: 1; }
+    .execute-button.is-processing .execute-button__progress i { animation: execute-progress .72s cubic-bezier(.22,1,.36,1) forwards; }
+
+    .decode-grid {
+      position: absolute;
+      z-index: 12;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+      gap: 1px;
+      visibility: hidden;
+      pointer-events: none;
+      background: rgba(255,255,255,.18);
+    }
+
+    .decode-grid.is-active { visibility: visible; }
+
+    .decode-grid i {
+      opacity: 0;
+      background:
+        linear-gradient(125deg, rgba(247,247,247,.98), rgba(180,180,180,.96) 45%, rgba(235,235,235,.98)),
+        repeating-linear-gradient(90deg, transparent 0 8px, rgba(0,0,0,.04) 8px 9px);
+      background-size: 240% 100%;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.36);
+      animation: tile-resolve .8s cubic-bezier(.16,1,.3,1) var(--delay, 0ms) both;
+    }
+
+    .decode-grid i:nth-child(3n) {
+      background: linear-gradient(125deg, #d8d8d8, #949494 48%, #ededed);
+    }
+
+    .decode-grid i:nth-child(5n) {
+      background: linear-gradient(125deg, #f5f5f5, #b5b5b5 42%, #d7d7d7);
+    }
+
+    .statusbar {
+      display: grid;
+      flex: 0 0 25px;
+      grid-template-columns: minmax(130px, .7fr) minmax(180px, 1.3fr) 130px;
+      gap: 3px;
+      min-height: 25px;
+      padding-top: 2px;
+      color: #000;
+      background: var(--win-gray);
+      font: 10px/1 var(--ui-font);
+    }
+
+    .status-cell {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 7px;
+      padding: 2px 6px;
+      overflow: hidden;
+      border-top: 1px solid var(--win-shadow);
+      border-left: 1px solid var(--win-shadow);
+      border-right: 1px solid var(--win-light);
+      border-bottom: 1px solid var(--win-light);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .status-led {
+      flex: 0 0 6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #7a8b00;
+      box-shadow: 0 0 4px rgba(128,150,0,.7);
+    }
+
+    .status-progress {
+      display: flex;
+      flex: 1 1 auto;
+      height: 10px;
+      min-width: 80px;
+      gap: 2px;
+      padding: 1px;
+      border-top: 1px solid var(--win-shadow);
+      border-left: 1px solid var(--win-shadow);
+      border-right: 1px solid var(--win-light);
+      border-bottom: 1px solid var(--win-light);
+      background: #fff;
+    }
+
+    .status-progress i {
+      flex: 1 1 0;
+      opacity: .08;
+      background: var(--win-blue);
+      transition: opacity .08s linear;
+    }
+
+    .status-progress i.is-on { opacity: 1; }
+
+    .reopen-button {
+      position: absolute;
+      z-index: 12;
+      left: 30px;
+      top: 33%;
+      display: none;
+      width: 90px;
+      min-height: 72px;
+      padding: 8px;
+      color: #000;
+      text-align: center;
+      background: transparent;
+      border-color: transparent;
+      font: 11px/1.3 var(--jp-font);
+    }
+
+    .reopen-button.is-visible { display: block; }
+    .reopen-button:hover { color: #fff; background: rgba(0,0,128,.7); }
+
+    .reopen-icon {
+      position: relative;
+      display: block;
+      width: 37px;
+      height: 27px;
+      margin: 0 auto 7px;
+      border: 2px solid #e7e2cf;
+      background: #05070c;
+      box-shadow: inset 0 0 0 3px #9a9585, 5px 5px 0 -2px #cfc9b7;
+    }
+
+    .reopen-icon::after {
+      content: "K";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      color: var(--signal);
+      place-items: center;
+      font: 700 12px/1 Arial, sans-serif;
+    }
+
+    .taskbar {
+      position: absolute;
+      z-index: 60;
+      inset: auto 0 0;
+      display: flex;
+      height: 38px;
+      align-items: stretch;
+      gap: 4px;
+      padding: 3px 4px;
+      color: #000;
+      background: var(--win-gray);
+      border-top: 2px solid var(--win-light);
+      box-shadow: 0 -1px #808080;
+    }
+
+    .start-button {
+      display: flex;
+      min-width: 87px;
+      align-items: center;
+      padding: 2px 8px 2px 5px;
+      font: 700 12px/1 var(--jp-font);
+    }
+
+    .start-mark { width: 22px; height: 21px; margin-right: 5px; }
+    .start-mark::before { content: "K"; font-size: 12px; }
+
+    .task-divider {
+      width: 3px;
+      margin: 1px 0;
+      border-left: 1px solid var(--win-shadow);
+      border-right: 1px solid var(--win-light);
+    }
+
+    .task-button {
+      display: flex;
+      width: min(290px, 30vw);
+      align-items: center;
+      padding: 2px 8px;
+      overflow: hidden;
+      font: 700 11px/1 var(--ui-font);
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .task-button.is-active {
+      border-top-color: var(--win-dark);
+      border-left-color: var(--win-dark);
+      border-right-color: var(--win-light);
+      border-bottom-color: var(--win-light);
+      background: repeating-linear-gradient(135deg, #fff 0 1px, #d5d5d5 1px 3px);
+      box-shadow: inset 1px 1px var(--win-shadow);
+    }
+
+    .task-button .app-icon { flex-basis: 17px; width: 17px; height: 17px; margin-right: 6px; }
+
+    .taskbar-spacer { flex: 1 1 auto; }
+
+    .tray {
+      display: flex;
+      min-width: 126px;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 9px;
+      padding: 0 8px;
+      border-top: 2px solid var(--win-shadow);
+      border-left: 2px solid var(--win-shadow);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      font: 10px/1 var(--ui-font);
+    }
+
+    .tray-led {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #9caf00;
+      box-shadow: 0 0 6px #879900;
+    }
+
+    .start-menu {
+      position: absolute;
+      z-index: 70;
+      left: 4px;
+      bottom: 37px;
+      display: grid;
+      width: 260px;
+      grid-template-columns: 34px 1fr;
+      padding: 3px;
+      color: #000;
+      background: var(--win-gray);
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-dark);
+      border-bottom: 2px solid var(--win-dark);
+      box-shadow: 6px 9px 25px rgba(0,0,0,.3);
+      opacity: 0;
+      visibility: hidden;
+      clip-path: inset(100% 0 0 0);
+      transform: translateY(10px) scale(.96);
+      transform-origin: left bottom;
+      transition: visibility 0s .24s, opacity .16s ease, clip-path .32s cubic-bezier(.16,1,.3,1), transform .36s cubic-bezier(.16,1,.3,1);
+    }
+
+    .start-menu.is-open {
+      opacity: 1;
+      visibility: visible;
+      clip-path: inset(0 0 0 0);
+      transform: none;
+      transition-delay: 0s;
+    }
+
+    .start-menu__rail {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 7px 0;
+      color: #ddd;
+      background: #777;
+      font: 700 16px/1 var(--ui-font);
+      letter-spacing: .02em;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+    }
+
+    .start-menu__rail b { color: #fff; }
+
+    .start-menu__items { padding: 4px 0; }
+
+    .start-item {
+      display: flex;
+      width: 100%;
+      min-height: 39px;
+      align-items: center;
+      border: 0;
+      padding: 6px 9px;
+      text-align: left;
+      background: transparent;
+      font: 11px/1.2 var(--jp-font);
+      cursor: default;
+    }
+
+    .start-item:hover,
+    .start-item:focus-visible { color: #fff; background: var(--win-blue); outline: 0; }
+
+    .start-item__icon {
+      display: grid;
+      flex: 0 0 25px;
+      width: 25px;
+      height: 25px;
+      margin-right: 9px;
+      border: 1px solid #555;
+      background: #fff;
+      color: var(--win-blue);
+      place-items: center;
+      font: 900 13px/1 Arial, sans-serif;
+    }
+
+    .start-separator {
+      height: 2px;
+      margin: 4px 5px;
+      border-top: 1px solid var(--win-shadow);
+      border-bottom: 1px solid var(--win-light);
+    }
+
+    .help-dialog {
+      position: absolute;
+      z-index: 80;
+      top: 50%;
+      left: 50%;
+      display: none;
+      width: min(520px, calc(100vw - 32px));
+      padding: 3px;
+      color: #000;
+      background: var(--win-gray);
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-dark);
+      border-bottom: 2px solid var(--win-dark);
+      box-shadow: 15px 20px 52px rgba(0,0,0,.42);
+      transform: translate(-50%, -50%);
+    }
+
+    .help-dialog.is-open { display: block; animation: dialog-in .34s cubic-bezier(.16,1,.3,1) both; }
+
+    .help-dialog__body {
+      padding: 18px 20px 16px;
+      font: 11px/1.6 var(--jp-font);
+    }
+
+    .help-dialog__body h2 {
+      margin: 0 0 12px;
+      color: var(--win-blue);
+      font-size: 16px;
+    }
+
+    .help-dialog__body ol { margin: 0; padding-left: 22px; }
+    .help-dialog__body li { margin: 8px 0; }
+    .help-dialog__body a { color: var(--win-blue); }
+
+    .dialog-actions { display: flex; justify-content: center; padding: 0 0 14px; }
+    .dialog-button { min-width: 94px; min-height: 29px; color: #000; }
+
+    @keyframes scene-breathe {
+      0%, 100% { transform: scale(1.045); filter: saturate(.92) brightness(.79); }
+      50% { transform: scale(1.052); filter: saturate(.97) brightness(.82); }
+    }
+
+    @keyframes grain {
+      0% { transform: translate(0,0); }
+      25% { transform: translate(3%,-2%); }
+      50% { transform: translate(-2%,3%); }
+      75% { transform: translate(2%,2%); }
+    }
+
+    @keyframes origin-pulse {
+      0%, 100% { opacity: .26; transform: translate(-50%,-50%) scale(.62); }
+      50% { opacity: .72; transform: translate(-50%,-50%) scale(1.12); }
+    }
+
+    @keyframes title-glint {
+      0%, 54% { background-position: 130% 0; opacity: 0; }
+      60% { opacity: 1; }
+      78%, 100% { background-position: -130% 0; opacity: 0; }
+    }
+
+    @keyframes signal-pulse {
+      50% { opacity: .42; box-shadow: 0 0 2px var(--signal); }
+    }
+
+    @keyframes beam {
+      0% { --beam-angle: 0deg; opacity: 0; }
+      9%, 82% { opacity: 1; }
+      100% { --beam-angle: 360deg; opacity: 0; }
+    }
+
+    @keyframes tile-resolve {
+      0% { opacity: 0; filter: grayscale(1) brightness(.8); transform: scale(.94); background-position: 100% 0; }
+      14% { opacity: 1; }
+      56% { opacity: .96; transform: scale(1); }
+      100% { opacity: 0; filter: grayscale(.2) brightness(1.2); transform: scale(1.025); background-position: 0 0; }
+    }
+
+    @keyframes execute-progress { to { width: 100%; } }
+
+    @keyframes screen-flicker {
+      0%, 94%, 100% { opacity: .28; }
+      95% { opacity: .48; }
+      96% { opacity: .18; }
+    }
+
+    @keyframes dialog-in {
+      0% { opacity: 0; filter: blur(4px); transform: translate(-50%,-47%) scale(.88); }
+      70% { transform: translate(-50%,-50%) scale(1.025); }
+      100% { opacity: 1; filter: none; transform: translate(-50%,-50%) scale(1); }
+    }
+
+    @media (max-width: 760px) {
+      .desktop { min-height: 520px; }
+      .ghost-header {
+        grid-template-columns: 1fr 1fr;
+        gap: 17px;
+        padding: 17px 18px 0;
+      }
+      .ghost-nav:nth-of-type(n+2) { display: none; }
+      .prototype-stamp { display: none; }
+      .window-position {
+        top: 9px;
+        right: 6px;
+        bottom: 42px;
+        left: 6px;
+        min-width: 0;
+        min-height: 0;
+      }
+      .window-position.is-maximized { inset: 3px 3px 38px; }
+      .titlebar__signal { display: none; }
+      .menu-strip { overflow-x: auto; }
+      .menu-button { flex: 0 0 auto; padding: 0 7px; }
+      .toolbar { flex-basis: 38px; min-height: 38px; overflow-x: auto; }
+      .toolbar-button { min-width: 43px; padding-inline: 4px; }
+      .toolbar-button span { font-size: 12px; }
+      .toolbar-divider { display: none; }
+      .address-bar { grid-template-columns: 42px 1fr 27px; }
+      .explorer { grid-template-columns: 1fr; grid-template-rows: 68px minmax(0, 1fr); }
+      .tree-pane { overflow-x: auto; overflow-y: hidden; border-right: 0; border-bottom: 1px solid var(--win-shadow); }
+      .tree-title { display: none; }
+      .tree-list { display: flex; width: max-content; margin: 0; padding: 5px; }
+      .tree-list::before, .tree-row--root { display: none; }
+      .tree-row--child { padding-left: 0; }
+      .tree-button { width: auto; min-width: 98px; min-height: 56px; flex-direction: column; justify-content: center; padding: 4px 7px; text-align: center; font-size: 9px; }
+      .tree-icon { margin: 0 0 5px; }
+      .content-inner { padding: 22px 18px 32px; }
+      .hero-row { grid-template-columns: 1fr; gap: 20px; }
+      .document-title { font-size: clamp(34px, 11vw, 58px); }
+      .file-card { display: none; }
+      .hero-copy { font-size: 11px; }
+      .fact-strip { grid-template-columns: 1fr; border-bottom: 0; }
+      .fact { border-bottom: 1px solid #777; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .statusbar { grid-template-columns: 1fr 90px; }
+      .status-cell:nth-child(2) { display: none; }
+      .task-button { width: min(180px, 42vw); }
+      .tray { min-width: 78px; }
+      .tray span:first-of-type { display: none; }
+      .start-button { min-width: 69px; }
+      .decode-grid { grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(8, 1fr); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="desktop" id="desktop">
+    <div class="scene" aria-hidden="true">
+      <div class="scene__image"></div>
+      <div class="scene__tint"></div>
+      <header class="ghost-header">
+        <div class="ghost-brand">
+          <b>KiT Works</b>
+          <p>Everything worth making begins beyond the signal.</p>
+        </div>
+        <div class="ghost-nav"><b>Work</b><span>Portfolio</span><span>Capabilities</span><span>Process</span></div>
+        <div class="ghost-nav"><b>Profile</b><span>About</span><span>Approach</span><span>FAQ</span></div>
+        <div class="ghost-nav"><b>Connect</b><span>Start a project</span><span>Availability</span><span>System info</span></div>
+      </header>
+      <div class="scene__veil"></div>
+      <div class="crt-origin"></div>
+      <div class="scene__grain"></div>
+    </div>
+
+    <div class="prototype-stamp"><i></i> AFTER CLICK / MOTION PROTOTYPE</div>
+
+    <button class="reopen-button" id="reopenButton" type="button" aria-label="KiT Works Explorerを開く">
+      <span class="reopen-icon" aria-hidden="true"></span>
+      KiT Works<br>Explorer
+    </button>
+
+    <div class="window-position is-preparing" id="windowPosition">
+      <section class="win-window" id="kitWindow" role="dialog" aria-modal="true" aria-labelledby="windowTitle">
+        <header class="titlebar" id="titlebar">
+          <span class="app-icon" aria-hidden="true"></span>
+          <span class="titlebar__title" id="windowTitle">KiT Works Explorer — ABOUT</span>
+          <span class="titlebar__signal"><i></i> EXTERNAL SYSTEM CONNECTED</span>
+          <div class="window-controls">
+            <button class="window-control window-control--min" id="minimizeButton" type="button" aria-label="最小化"></button>
+            <button class="window-control window-control--max" id="maximizeButton" type="button" aria-label="最大化"></button>
+            <button class="window-control window-control--close" id="closeButton" type="button" aria-label="閉じる">×</button>
+          </div>
+        </header>
+
+        <nav class="menu-strip" aria-label="ウィンドウメニュー">
+          <button class="menu-button" type="button"><u>フ</u>ァイル(F)</button>
+          <button class="menu-button" type="button"><u>編</u>集(E)</button>
+          <button class="menu-button" type="button"><u>表</u>示(V)</button>
+          <button class="menu-button" type="button"><u>接</u>続(C)</button>
+          <button class="menu-button" id="helpButton" type="button"><u>ヘ</u>ルプ(H)</button>
+        </nav>
+
+        <div class="toolbar" aria-label="ツールバー">
+          <span class="toolbar-handle" aria-hidden="true"></span>
+          <button class="toolbar-button" id="backButton" type="button" aria-label="前のページへ"><span>←</span>戻る</button>
+          <button class="toolbar-button" id="homeButton" type="button"><span>⌂</span>ホーム</button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button class="toolbar-button" id="replayButton" type="button"><span>▶</span>再生</button>
+          <button class="toolbar-button" id="refreshButton" type="button"><span>↻</span>更新</button>
+          <span class="toolbar-divider" aria-hidden="true"></span>
+          <button class="toolbar-button" id="motionButton" type="button"><span>✦</span>動き</button>
+        </div>
+
+        <div class="address-bar">
+          <span>アドレス</span>
+          <span class="address-value" id="addressValue">K:\KIT-WORKS\ABOUT.HTM</span>
+          <button class="win-button address-go" id="addressGo" type="button" aria-label="移動">↵</button>
+        </div>
+
+        <div class="explorer">
+          <aside class="tree-pane" aria-label="KiT Worksの項目">
+            <h2 class="tree-title">すべてのフォルダ</h2>
+            <ul class="tree-list">
+              <li class="tree-row tree-row--root"><button class="tree-button" type="button" data-page="index"><span class="tree-icon"></span>KiT Works</button></li>
+              <li class="tree-row tree-row--child"><button class="tree-button" type="button" data-page="portfolio"><span class="tree-icon"></span>Portfolio</button></li>
+              <li class="tree-row tree-row--child"><button class="tree-button" type="button" data-page="capabilities"><span class="tree-icon"></span>Capabilities</button></li>
+              <li class="tree-row tree-row--child"><button class="tree-button" type="button" data-page="process"><span class="tree-icon"></span>Process</button></li>
+              <li class="tree-row tree-row--child"><button class="tree-button" type="button" data-page="about" aria-current="page"><span class="tree-icon"></span>About</button></li>
+              <li class="tree-row tree-row--child"><button class="tree-button" type="button" data-page="approach"><span class="tree-icon"></span>Approach</button></li>
+              <li class="tree-row tree-row--child"><button class="tree-button" type="button" data-page="faq"><span class="tree-icon"></span>FAQ</button></li>
+              <li class="tree-row tree-row--child"><button class="tree-button" type="button" data-page="project"><span class="tree-icon"></span>Start a project</button></li>
+              <li class="tree-row tree-row--child"><button class="tree-button" type="button" data-page="availability"><span class="tree-icon"></span>Availability</button></li>
+              <li class="tree-row tree-row--child"><button class="tree-button" type="button" data-page="system"><span class="tree-icon"></span>System info</button></li>
+            </ul>
+          </aside>
+
+          <article class="content-pane" id="contentPane" aria-live="polite">
+            <div class="content-inner" id="contentInner">
+              <div class="document-kicker"><i></i><span id="documentKicker">ABOUT_KIT.TXT / INDEPENDENT PRACTICE</span></div>
+              <div class="hero-row">
+                <div>
+                  <h1 class="document-title"><span class="en" id="pageEnglish">ABOUT KIT WORKS</span><span class="jp" id="pageTitle">独立して、構想から公開まで。</span></h1>
+                  <p class="hero-copy" id="pageCopy">KiT Worksは、デザインと実装を一つの思考で扱う日本の個人事業です。相談内容の整理から、体験設計、フロントエンド実装、公開後の改善までを途切れさせずにつなぎます。</p>
+                </div>
+                <div class="file-card" aria-hidden="true">
+                  <div class="file-card__screen"><b>KiT Works</b><small>DESIGN + CODE<br>JAPAN / ONLINE</small></div>
+                </div>
+              </div>
+
+              <div class="fact-strip" id="factStrip">
+                <div class="fact"><small id="factLabel1">OWNER</small><b id="factValue1">個人事業 / ONE PERSON</b></div>
+                <div class="fact"><small id="factLabel2">REGION</small><b id="factValue2">JAPAN</b></div>
+                <div class="fact"><small id="factLabel3">MODE</small><b id="factValue3">DESIGN + CODE</b></div>
+              </div>
+
+              <div class="detail-grid">
+                <section class="group-box">
+                  <span class="group-label" id="listTitle">このページで伝えること</span>
+                  <ul id="pageList">
+                    <li>窓の外に、入口ページの自然とコンピューターを残す</li>
+                    <li>窓の中だけを、古いWindowsの視覚言語に切り替える</li>
+                    <li>見た目はレトロ、動きは現在の精度で設計する</li>
+                  </ul>
+                </section>
+                <section class="group-box group-box--action">
+                  <span class="group-label">NEXT CONNECTION</span>
+                  <p id="actionCopy">相談内容がまだ曖昧でも構いません。選択式の短い入力から、必要な情報を一緒に整理します。</p>
+                  <button class="execute-button" id="executeButton" type="button">
+                    <span class="execute-button__progress" aria-hidden="true"><i></i></span>
+                    <span class="execute-button__label">START_PROJECT.EXE を開く</span>
+                  </button>
+                </section>
+              </div>
+            </div>
+            <div class="decode-grid" id="decodeGrid" aria-hidden="true"></div>
+          </article>
+        </div>
+
+        <footer class="statusbar">
+          <div class="status-cell"><span class="status-led"></span><span id="statusText">ABOUT.HTM — READY</span></div>
+          <div class="status-cell"><span id="transferText">外部世界との接続を維持</span><span class="status-progress" id="statusProgress" aria-hidden="true"></span></div>
+          <div class="status-cell">9 OBJECT(S)</div>
+        </footer>
+      </section>
+    </div>
+
+    <aside class="help-dialog" id="helpDialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <header class="titlebar">
+        <span class="app-icon" aria-hidden="true"></span>
+        <span class="titlebar__title" id="helpTitle">MOTION_REFERENCE.TXT</span>
+        <div class="window-controls"><button class="window-control window-control--close" id="helpCloseTop" type="button" aria-label="閉じる">×</button></div>
+      </header>
+      <div class="help-dialog__body">
+        <h2>見た目と動きを分離して設計</h2>
+        <ol>
+          <li><a href="https://recent.design/i/no3vh2l-stamp-folder-animation" target="_blank" rel="noreferrer"><b>Stamp Folder Animation</b></a> — CRT位置から窓がバネのように展開し、少しだけ行き過ぎて着地。</li>
+          <li><a href="https://recent.design/i/pf04jr1-ai-image-generation-reveal" target="_blank" rel="noreferrer"><b>AI Image Generation Reveal</b></a> — 中身はグレースケールのタイルが順番に解像して表示。</li>
+          <li><a href="https://recent.design/i/4x12djt-border-beam-ui" target="_blank" rel="noreferrer"><b>Border Beam UI</b></a> — ホバー時だけ、Windowsの角ばった境界を信号光が一周。</li>
+        </ol>
+      </div>
+      <div class="dialog-actions"><button class="dialog-button" id="helpClose" type="button">OK</button></div>
+    </aside>
+
+    <aside class="start-menu" id="startMenu" aria-label="スタートメニュー">
+      <div class="start-menu__rail"><b>KiT</b>&nbsp;Works 95</div>
+      <div class="start-menu__items">
+        <button class="start-item" type="button" data-start-page="portfolio"><span class="start-item__icon">W</span><span><b>Work</b><br>制作と対応領域</span></button>
+        <button class="start-item" type="button" data-start-page="about"><span class="start-item__icon">P</span><span><b>Profile</b><br>KiT Worksについて</span></button>
+        <button class="start-item" type="button" data-start-page="project"><span class="start-item__icon">C</span><span><b>Connect</b><br>相談内容を作る</span></button>
+        <div class="start-separator"></div>
+        <button class="start-item" id="startMotion" type="button"><span class="start-item__icon">?</span><span><b>Motion notes</b><br>採用したDESIGN</span></button>
+      </div>
+    </aside>
+
+    <footer class="taskbar">
+      <button class="start-button" id="startButton" type="button" aria-expanded="false" aria-controls="startMenu"><span class="start-mark"></span>スタート</button>
+      <span class="task-divider" aria-hidden="true"></span>
+      <button class="task-button is-active" id="taskButton" type="button"><span class="app-icon"></span>KiT Works Explorer — ABOUT</button>
+      <span class="taskbar-spacer"></span>
+      <div class="tray"><span class="tray-led"></span><span>ONLINE</span><time id="clock">00:00</time></div>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const windowPosition = document.getElementById("windowPosition");
+      const kitWindow = document.getElementById("kitWindow");
+      const titlebar = document.getElementById("titlebar");
+      const contentInner = document.getElementById("contentInner");
+      const contentPane = document.getElementById("contentPane");
+      const decodeGrid = document.getElementById("decodeGrid");
+      const statusProgress = document.getElementById("statusProgress");
+      const statusText = document.getElementById("statusText");
+      const transferText = document.getElementById("transferText");
+      const addressValue = document.getElementById("addressValue");
+      const windowTitle = document.getElementById("windowTitle");
+      const taskButton = document.getElementById("taskButton");
+      const reopenButton = document.getElementById("reopenButton");
+      const startButton = document.getElementById("startButton");
+      const startMenu = document.getElementById("startMenu");
+      const helpDialog = document.getElementById("helpDialog");
+      const executeButton = document.getElementById("executeButton");
+      const history = ["about"];
+      let currentPage = "about";
+      let isOpen = true;
+      let isMinimized = false;
+      let isTransitioning = false;
+      let progressTimer = 0;
+      let dragX = 0;
+      let dragY = 0;
+      let dragState = null;
+
+      const pageData = {
+        index: {
+          en: "SYSTEM INDEX",
+          title: "入口の全項目を、ひとつの窓から。",
+          copy: "自然と古いコンピューターの世界へ、外部システムが割り込みます。このExplorerは、KiT Worksの情報へ進むための共通インターフェースです。",
+          kicker: "SYSTEM_INDEX.EXE / 09 OBJECTS",
+          facts: [["CHANNELS","9 OBJECTS"],["STATE","ONLINE"],["ORIGIN","CRT SIGNAL"]],
+          list: ["Work・Profile・Connectの全項目を保持", "現在地は左のツリーとタイトルバーで同期", "窓を閉じると、入口の自然世界へ戻る"],
+          action: "最初にKiT Worksの概要を見る場合は、Aboutフォルダを開いてください。"
+        },
+        portfolio: {
+          en: "PORTFOLIO",
+          title: "制作実績は、別の場所で深く見せる。",
+          copy: "Portfolioは後日、独立したサイトとして接続します。この入口では、世界観を途切れさせずに別サイトへ移動するための接続状態を示します。",
+          kicker: "PORTFOLIO.LNK / RESERVED CONNECTION",
+          facts: [["TYPE","EXTERNAL SITE"],["STATE","COMING SOON"],["HANDOFF","SEAMLESS"]],
+          list: ["別サイトとして情報密度を確保", "入口から同じモーション言語で接続", "公開前は期待だけを作り、偽の実績は置かない"],
+          action: "公開準備が整うまでは、対応領域と制作方針をご確認ください。"
+        },
+        capabilities: {
+          en: "CAPABILITIES",
+          title: "考える、設計する、実装する。",
+          copy: "Webサイトの企画・UI設計・フロントエンド実装を、一つの文脈で進めます。見た目だけでなく、操作した瞬間まで品質の対象です。",
+          kicker: "CAPABILITIES.INI / THREE SIGNALS",
+          facts: [["01","WEB DESIGN"],["02","FRONTEND"],["03","INTERACTION"]],
+          list: ["情報設計とアートディレクション", "レスポンシブなフロントエンド実装", "ホバー・押下・遷移のモーション設計"],
+          action: "必要な領域が複数にまたがる場合も、一つの相談として整理できます。"
+        },
+        process: {
+          en: "PROCESS",
+          title: "曖昧な状態から、順番をつくる。",
+          copy: "最初から要件が完成している必要はありません。目的の確認、構造、デザイン、実装、公開の順に判断材料をそろえます。",
+          kicker: "PROCESS.BAT / 05 STEPS",
+          facts: [["01","DISCOVER"],["03","BUILD"],["05","RELEASE"]],
+          list: ["目的と利用者を確認", "画面と動きの基準を固定", "実装後も実機で操作感を検証"],
+          action: "進め方を相談内容に合わせて組み替えます。まずは現状だけ共有してください。"
+        },
+        about: {
+          en: "ABOUT KIT WORKS",
+          title: "独立して、構想から公開まで。",
+          copy: "KiT Worksは、デザインと実装を一つの思考で扱う日本の個人事業です。相談内容の整理から、体験設計、フロントエンド実装、公開後の改善までを途切れさせずにつなぎます。",
+          kicker: "ABOUT_KIT.TXT / INDEPENDENT PRACTICE",
+          facts: [["OWNER","個人事業 / ONE PERSON"],["REGION","JAPAN"],["MODE","DESIGN + CODE"]],
+          list: ["窓の外に、入口ページの自然とコンピューターを残す", "窓の中だけを、古いWindowsの視覚言語に切り替える", "見た目はレトロ、動きは現在の精度で設計する"],
+          action: "相談内容がまだ曖昧でも構いません。選択式の短い入力から、必要な情報を一緒に整理します。"
+        },
+        approach: {
+          en: "APPROACH",
+          title: "世界観を、細部の判断まで通す。",
+          copy: "一枚の完成画だけでなく、カーソルを重ねる、押す、待つ、戻るという短い瞬間まで同じ設計思想でつなぎます。",
+          kicker: "APPROACH.SYS / OPERATING PRINCIPLES",
+          facts: [["01","CONTEXT"],["02","DETAIL"],["03","VERIFY"]],
+          list: ["見た目と目的を切り離さない", "各操作状態を個別にデザイン", "実装後の画面で再検証する"],
+          action: "参考サイトがある場合は、何が良いかを動作単位で分解して共有します。"
+        },
+        faq: {
+          en: "FAQ",
+          title: "相談前の疑問を、先に開く。",
+          copy: "費用、期間、対応範囲、準備物など、最初に気になりやすい内容をまとめます。答えがない場合はそのまま相談できます。",
+          kicker: "FAQ.HLP / COMMON QUESTIONS",
+          facts: [["FORMAT","QUESTION"],["ANSWERS","CONCISE"],["UPDATE","ONGOING"]],
+          list: ["相談時点で要件が未確定でも対応可能", "制作規模に合わせて範囲を調整", "公開後の改善も個別に相談"],
+          action: "FAQにない質問は、相談内容の入力欄へそのまま記載してください。"
+        },
+        project: {
+          en: "START A PROJECT",
+          title: "相談内容を、一緒に形にする。",
+          copy: "目的、希望時期、必要な領域を短い選択肢から整理します。この試作では送信せず、入力体験の入口だけを示します。",
+          kicker: "START_PROJECT.EXE / LOCAL BRIEF",
+          facts: [["TIME","3–5 MIN"],["SEND","DISABLED"],["STATE","LOCAL"]],
+          list: ["目的を一つ選ぶ", "必要な制作領域を選ぶ", "補足したい背景を書く"],
+          action: "本番では、ここから日本語中心の相談フォームへ接続します。"
+        },
+        availability: {
+          en: "AVAILABILITY",
+          title: "予定ではなく、相談から確認する。",
+          copy: "稼働状況は案件の規模と時期で変わるため、固定の空き表示ではなく、相談内容を受けて具体的に回答します。",
+          kicker: "AVAILABILITY.DAT / CHECK AFTER BRIEF",
+          facts: [["REGION","JAPAN"],["RESPONSE","AFTER BRIEF"],["MODE","PROJECT BASIS"]],
+          list: ["希望時期を確認", "必要な期間を見積もる", "着手可能日を個別に回答"],
+          action: "希望時期が決まっている場合は、相談内容へ先に記載してください。"
+        },
+        system: {
+          en: "SYSTEM INFO",
+          title: "このサイト自体が、できることの一例。",
+          copy: "世界観、情報設計、レスポンシブ対応、細かなインタラクションを一つの実装へまとめています。装飾ではなく、KiT Worksの仕事の進め方を示す展示です。",
+          kicker: "SYSTEM_INFO.NFO / CONCEPT TO CODE",
+          facts: [["STACK","WEB"],["MOTION","RESPONSIVE"],["BUILD","ORIGINAL"]],
+          list: ["既存サイトのコードは複製しない", "参照した動きは目的に合わせて再構成", "PC・タッチ・キーボードで操作可能"],
+          action: "同じように、事業固有の世界観をWeb体験へ変換できます。"
+        }
+      };
+
+      for (let i = 0; i < 48; i += 1) {
+        const tile = document.createElement("i");
+        tile.style.setProperty("--delay", `${(i * 29 + (i % 7) * 37) % 370}ms`);
+        decodeGrid.appendChild(tile);
+      }
+
+      for (let i = 0; i < 12; i += 1) {
+        statusProgress.appendChild(document.createElement("i"));
+      }
+
+      const setClock = () => {
+        const now = new Date();
+        document.getElementById("clock").textContent = now.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+      };
+      setClock();
+      window.setInterval(setClock, 30000);
+
+      function animateWindowIn() {
+        if (!isOpen) return;
+        windowPosition.classList.remove("is-preparing");
+        windowPosition.classList.remove("is-hidden");
+        reopenButton.classList.remove("is-visible");
+        taskButton.classList.add("is-active");
+        isMinimized = false;
+        if (reduceMotion) return;
+        kitWindow.animate([
+          { opacity: 0, clipPath: "inset(49% 49% 49% 49%)", transform: "perspective(1100px) translateY(31vh) scale(.045,.025) rotateX(16deg)", filter: "grayscale(1) brightness(1.7) blur(5px)" },
+          { opacity: 1, offset: .58, clipPath: "inset(0 0 0 0)", transform: "perspective(1100px) translateY(-8px) scale(1.026) rotateX(-.8deg)", filter: "grayscale(.28) brightness(1.06) blur(0)" },
+          { opacity: 1, offset: .82, transform: "perspective(1100px) translateY(2px) scale(.994) rotateX(.2deg)", filter: "none" },
+          { opacity: 1, clipPath: "inset(0 0 0 0)", transform: "perspective(1100px) translateY(0) scale(1) rotateX(0)", filter: "none" }
+        ], { duration: 820, easing: "cubic-bezier(.16,1,.3,1)", fill: "both" });
+        window.setTimeout(() => revealContent(true), 155);
+      }
+
+      function animateWindowOut(mode) {
+        if (!isOpen) return;
+        const duration = mode === "minimize" ? 430 : 520;
+        const endTransform = mode === "minimize"
+          ? "perspective(900px) translate(-28vw, 48vh) scale(.12,.045) rotateX(10deg)"
+          : "perspective(900px) translateY(34vh) scale(.035,.02) rotateX(18deg)";
+        const finish = () => {
+          windowPosition.classList.add("is-hidden");
+          taskButton.classList.remove("is-active");
+          if (mode === "close") {
+            isOpen = false;
+            reopenButton.classList.add("is-visible");
+          } else {
+            isMinimized = true;
+          }
+        };
+        if (reduceMotion) { finish(); return; }
+        const animation = kitWindow.animate([
+          { opacity: 1, clipPath: "inset(0 0 0 0)", transform: "none", filter: "none" },
+          { opacity: .82, offset: .2, transform: "translateY(-5px) scale(1.012)", filter: "grayscale(.25)" },
+          { opacity: 0, clipPath: "inset(49% 49% 49% 49%)", transform: endTransform, filter: "grayscale(1) brightness(1.5) blur(4px)" }
+        ], { duration, easing: "cubic-bezier(.55,0,.8,.3)", fill: "forwards" });
+        animation.addEventListener("finish", finish, { once: true });
+      }
+
+      function revealContent(fromOpen = false) {
+        decodeGrid.classList.remove("is-active");
+        void decodeGrid.offsetWidth;
+        decodeGrid.classList.add("is-active");
+        if (!reduceMotion) {
+          contentInner.animate([
+            { opacity: .18, filter: "grayscale(1) blur(10px)", transform: "scale(.994)" },
+            { opacity: .58, offset: .56, filter: "grayscale(.7) blur(4px)", transform: "scale(1)" },
+            { opacity: 1, filter: "none", transform: "scale(1)" }
+          ], { duration: fromOpen ? 910 : 760, delay: fromOpen ? 90 : 0, easing: "cubic-bezier(.16,1,.3,1)", fill: "both" });
+        }
+        window.setTimeout(() => decodeGrid.classList.remove("is-active"), 1260);
+      }
+
+      function updateProgress(active) {
+        window.clearInterval(progressTimer);
+        const segments = Array.from(statusProgress.children);
+        segments.forEach(segment => segment.classList.remove("is-on"));
+        if (!active) return;
+        let index = 0;
+        progressTimer = window.setInterval(() => {
+          if (segments[index]) segments[index].classList.add("is-on");
+          index += 1;
+          if (index >= segments.length) window.clearInterval(progressTimer);
+        }, 38);
+      }
+
+      function renderPage(page) {
+        const data = pageData[page];
+        if (!data) return;
+        document.getElementById("documentKicker").textContent = data.kicker;
+        document.getElementById("pageEnglish").textContent = data.en;
+        document.getElementById("pageTitle").textContent = data.title;
+        document.getElementById("pageCopy").textContent = data.copy;
+        document.getElementById("factLabel1").textContent = data.facts[0][0];
+        document.getElementById("factValue1").textContent = data.facts[0][1];
+        document.getElementById("factLabel2").textContent = data.facts[1][0];
+        document.getElementById("factValue2").textContent = data.facts[1][1];
+        document.getElementById("factLabel3").textContent = data.facts[2][0];
+        document.getElementById("factValue3").textContent = data.facts[2][1];
+        document.getElementById("pageList").innerHTML = data.list.map(item => `<li>${item}</li>`).join("");
+        document.getElementById("actionCopy").textContent = data.action;
+        document.querySelectorAll("[data-page]").forEach(button => {
+          if (button.dataset.page === page) button.setAttribute("aria-current", "page");
+          else button.removeAttribute("aria-current");
+        });
+        const fileName = page === "index" ? "SYSTEM_INDEX.EXE" : `${page.toUpperCase()}.${page === "system" ? "NFO" : "HTM"}`;
+        addressValue.textContent = `K:\\KIT-WORKS\\${fileName}`;
+        windowTitle.textContent = `KiT Works Explorer — ${data.en}`;
+        taskButton.lastChild.textContent = `KiT Works Explorer — ${data.en}`;
+        statusText.textContent = `${fileName} — READY`;
+        contentPane.scrollTop = 0;
+      }
+
+      function navigateTo(page, addHistory = true) {
+        if (!pageData[page] || isTransitioning) return;
+        if (!isOpen) {
+          isOpen = true;
+          windowPosition.classList.remove("is-hidden");
+          animateWindowIn();
+        }
+        if (page === currentPage) { revealContent(); return; }
+        isTransitioning = true;
+        contentInner.classList.add("is-leaving");
+        statusText.textContent = `OPENING ${page.toUpperCase()}...`;
+        transferText.textContent = "READING SIGNAL";
+        updateProgress(true);
+        window.setTimeout(() => {
+          currentPage = page;
+          if (addHistory && history[history.length - 1] !== page) history.push(page);
+          renderPage(page);
+          contentInner.classList.remove("is-leaving");
+          revealContent();
+          transferText.textContent = "外部世界との接続を維持";
+          updateProgress(false);
+          isTransitioning = false;
+        }, reduceMotion ? 0 : 310);
+      }
+
+      document.querySelectorAll("[data-page]").forEach(button => button.addEventListener("click", () => navigateTo(button.dataset.page)));
+      document.querySelectorAll("[data-start-page]").forEach(button => button.addEventListener("click", () => {
+        closeStartMenu();
+        navigateTo(button.dataset.startPage);
+      }));
+
+      document.getElementById("backButton").addEventListener("click", () => {
+        if (history.length < 2) return;
+        history.pop();
+        navigateTo(history[history.length - 1], false);
+      });
+      document.getElementById("homeButton").addEventListener("click", () => navigateTo("index"));
+      document.getElementById("refreshButton").addEventListener("click", () => revealContent());
+      document.getElementById("replayButton").addEventListener("click", () => animateWindowIn());
+      document.getElementById("addressGo").addEventListener("click", () => revealContent());
+
+      executeButton.addEventListener("click", () => {
+        if (executeButton.classList.contains("is-processing")) return;
+        executeButton.classList.add("is-processing");
+        executeButton.querySelector(".execute-button__label").textContent = "CONNECTING...";
+        window.setTimeout(() => {
+          executeButton.classList.remove("is-processing");
+          executeButton.querySelector(".execute-button__label").textContent = "START_PROJECT.EXE を開く";
+          navigateTo("project");
+        }, reduceMotion ? 0 : 760);
+      });
+
+      document.getElementById("closeButton").addEventListener("click", () => animateWindowOut("close"));
+      document.getElementById("minimizeButton").addEventListener("click", () => animateWindowOut("minimize"));
+      reopenButton.addEventListener("click", () => {
+        isOpen = true;
+        animateWindowIn();
+      });
+      taskButton.addEventListener("click", () => {
+        if (!isOpen) { isOpen = true; animateWindowIn(); return; }
+        if (isMinimized || windowPosition.classList.contains("is-hidden")) animateWindowIn();
+        else animateWindowOut("minimize");
+      });
+
+      function toggleMaximize() {
+        const before = kitWindow.getBoundingClientRect();
+        windowPosition.classList.toggle("is-maximized");
+        dragX = 0;
+        dragY = 0;
+        windowPosition.style.setProperty("--drag-x", "0px");
+        windowPosition.style.setProperty("--drag-y", "0px");
+        const after = kitWindow.getBoundingClientRect();
+        if (reduceMotion) return;
+        const dx = before.left - after.left;
+        const dy = before.top - after.top;
+        const sx = before.width / after.width;
+        const sy = before.height / after.height;
+        kitWindow.animate([
+          { transformOrigin: "top left", transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`, filter: "brightness(1.08)" },
+          { offset: .68, transformOrigin: "top left", transform: "translate(0,0) scale(1.012)", filter: "none" },
+          { transformOrigin: "top left", transform: "none", filter: "none" }
+        ], { duration: 560, easing: "cubic-bezier(.16,1,.3,1)" });
+      }
+
+      document.getElementById("maximizeButton").addEventListener("click", toggleMaximize);
+      titlebar.addEventListener("dblclick", event => {
+        if (!event.target.closest("button")) toggleMaximize();
+      });
+
+      titlebar.addEventListener("pointerdown", event => {
+        if (event.target.closest("button") || windowPosition.classList.contains("is-maximized") || window.innerWidth <= 760) return;
+        dragState = { pointerId: event.pointerId, startX: event.clientX, startY: event.clientY, baseX: dragX, baseY: dragY };
+        titlebar.setPointerCapture(event.pointerId);
+      });
+
+      titlebar.addEventListener("pointermove", event => {
+        if (!dragState || dragState.pointerId !== event.pointerId) return;
+        dragX = Math.max(-window.innerWidth * .32, Math.min(window.innerWidth * .32, dragState.baseX + event.clientX - dragState.startX));
+        dragY = Math.max(-52, Math.min(window.innerHeight * .28, dragState.baseY + event.clientY - dragState.startY));
+        windowPosition.style.setProperty("--drag-x", `${dragX}px`);
+        windowPosition.style.setProperty("--drag-y", `${dragY}px`);
+      });
+
+      titlebar.addEventListener("pointerup", event => {
+        if (!dragState || dragState.pointerId !== event.pointerId) return;
+        dragState = null;
+        titlebar.releasePointerCapture(event.pointerId);
+      });
+
+      function openHelp() {
+        closeStartMenu();
+        helpDialog.classList.add("is-open");
+        document.getElementById("helpClose").focus();
+      }
+
+      function closeHelp() { helpDialog.classList.remove("is-open"); }
+      document.getElementById("helpButton").addEventListener("click", openHelp);
+      document.getElementById("motionButton").addEventListener("click", openHelp);
+      document.getElementById("startMotion").addEventListener("click", openHelp);
+      document.getElementById("helpClose").addEventListener("click", closeHelp);
+      document.getElementById("helpCloseTop").addEventListener("click", closeHelp);
+
+      function closeStartMenu() {
+        startMenu.classList.remove("is-open");
+        startButton.setAttribute("aria-expanded", "false");
+      }
+
+      startButton.addEventListener("click", () => {
+        const willOpen = !startMenu.classList.contains("is-open");
+        startMenu.classList.toggle("is-open", willOpen);
+        startButton.setAttribute("aria-expanded", String(willOpen));
+      });
+
+      document.addEventListener("pointerdown", event => {
+        if (!startMenu.contains(event.target) && !startButton.contains(event.target)) closeStartMenu();
+      });
+
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          if (helpDialog.classList.contains("is-open")) closeHelp();
+          else if (startMenu.classList.contains("is-open")) closeStartMenu();
+          else animateWindowOut("close");
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        if (window.innerWidth <= 760) {
+          dragX = 0;
+          dragY = 0;
+          windowPosition.style.setProperty("--drag-x", "0px");
+          windowPosition.style.setProperty("--drag-y", "0px");
+        }
+      });
+
+      renderPage(currentPage);
+      window.setTimeout(animateWindowIn, 220);
+    })();
+  </script>
+</body>
+</html>
