@@ -49,6 +49,12 @@ test("keeps the entrance as the only destination router", () => {
     assert.match(panelFiles, new RegExp(`^\\s*${id}:\\s*"`, "m"));
   }
 
+  assert.equal(
+    occurrences(navModel, /soon:\s*true/g),
+    destinationIds.length,
+    "every entrance destination must remain marked SOON while its content is under review",
+  );
+
   assert.match(page, /ref=\{screenRef\}[\s\S]*?openPanel\("index",\s*event\.currentTarget\)/);
   assert.match(page, /group\.links\.map\([\s\S]*?openPanel\(link\.panel,\s*event\.currentTarget\)/);
   assert.equal(occurrences(page, /openPanel\(/g), 2, "only the CRT and upper navigation may open a viewer");

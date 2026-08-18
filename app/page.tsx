@@ -50,26 +50,26 @@ const nav: Array<{
     titleJa: "制作",
     links: [
       { label: "Portfolio", labelJa: "制作実績", panel: "portfolio", soon: true },
-      { label: "Capabilities", labelJa: "対応領域", panel: "capabilities" },
-      { label: "Process", labelJa: "進め方", panel: "process" },
+      { label: "Capabilities", labelJa: "対応領域", panel: "capabilities", soon: true },
+      { label: "Process", labelJa: "進め方", panel: "process", soon: true },
     ],
   },
   {
     title: "Profile",
     titleJa: "プロフィール",
     links: [
-      { label: "About", labelJa: "KiT Worksについて", panel: "about" },
-      { label: "Approach", labelJa: "制作方針", panel: "approach" },
-      { label: "FAQ", labelJa: "よくある質問", panel: "faq" },
+      { label: "About", labelJa: "KiT Worksについて", panel: "about", soon: true },
+      { label: "Approach", labelJa: "制作方針", panel: "approach", soon: true },
+      { label: "FAQ", labelJa: "よくある質問", panel: "faq", soon: true },
     ],
   },
   {
     title: "Connect",
     titleJa: "ご相談",
     links: [
-      { label: "Start a project", labelJa: "プロジェクト相談", panel: "project" },
-      { label: "Availability", labelJa: "ご相談可能時期", panel: "availability" },
-      { label: "System info", labelJa: "このサイトについて", panel: "system" },
+      { label: "Start a project", labelJa: "プロジェクト相談", panel: "project", soon: true },
+      { label: "Availability", labelJa: "ご相談可能時期", panel: "availability", soon: true },
+      { label: "System info", labelJa: "このサイトについて", panel: "system", soon: true },
     ],
   },
 ];
@@ -348,7 +348,7 @@ export default function Home() {
                   className={`nav-link ${link.soon ? "nav-link--soon" : ""}`}
                   onClick={(event) => openPanel(link.panel, event.currentTarget)}
                   tabIndex={displayedPanel ? -1 : 0}
-                  aria-label={`${link.label} / ${link.labelJa}`}
+                  aria-label={`${link.label} / ${link.labelJa}${link.soon ? " / 準備中" : ""}`}
                   key={link.label}
                 >
                   <span className="nav-link__label" aria-hidden="true">
