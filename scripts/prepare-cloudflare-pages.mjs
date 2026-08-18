@@ -1,4 +1,4 @@
-import { access, cp, readFile, rm } from "node:fs/promises";
+import { access, cp, readFile, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { rolldown } from "rolldown";
@@ -61,13 +61,82 @@ try {
 } finally {
   await workerBundle.close();
 }
-if (rewrittenFontUrlCount === 0) {
-  throw new Error("No Vinext font URLs were prepared for Cloudflare Pages.");
-}
 const pagesWorkerSource = await readFile(pagesWorker, "utf8");
-if (/[\\/]\.vinext[\\/]fonts[\\/]/.test(pagesWorkerSource)) {
+
+const machinePathProbe = pagesWorkerSource
+  .replaceAll("\\/", "/")
+  .replace(/%(?:2f|5c)/gi, "/")
+  .replace(/%2e/gi, ".");
+if (/[\\/]\.vinext[\\/]fonts[\\/]/i.test(machinePathProbe)) {
   throw new Error("A build-machine font path remains in the Pages Worker.");
 }
+
+const workerForUrlScan = pagesWorkerSource.replaceAll("\\/", "/");
+const publicFontUrlPattern =
+  /url\(\s*(?:\\?["'])?\/assets\/_vinext_fonts\/([^"'`()\s?#\\]+?(?:\.|%2e)woff2)(?=[?#"'`()\s\\]|$)/giu;
+const encodedFontPaths = new Set(
+  Array.from(workerForUrlScan.matchAll(publicFontUrlPattern), (match) => match[1]),
+);
+if (encodedFontPaths.size === 0) {
+  throw new Error("No public Vinext font URLs were found in the Pages Worker.");
+}
+
+const publicFontRoot = path.resolve(
+  pagesOutput,
+  "assets",
+  "_vinext_fonts",
+);
+await Promise.all(
+  [...encodedFontPaths].map(async (encodedFontPath) => {
+    const segments = encodedFontPath.split("/").map((encodedSegment) => {
+      let segment;
+      try {
+        segment = decodeURIComponent(encodedSegment);
+      } catch (error) {
+        throw new Error(`Invalid encoded Vinext font URL: ${encodedFontPath}`, {
+          cause: error,
+        });
+      }
+      if (
+        !segment ||
+        segment === "." ||
+        segment === ".." ||
+        /[\\/\0:]/u.test(segment)
+      ) {
+        throw new Error(`Unsafe Vinext font URL: ${encodedFontPath}`);
+      }
+      return segment;
+    });
+
+    const fontFile = path.resolve(publicFontRoot, ...segments);
+    const relative = path.relative(publicFontRoot, fontFile);
+    if (
+      relative === "" ||
+      relative === ".." ||
+      relative.startsWith(`..${path.sep}`) ||
+      path.isAbsolute(relative)
+    ) {
+      throw new Error(
+        `Vinext font URL escapes its asset directory: ${encodedFontPath}`,
+      );
+    }
+
+    let fontStat;
+    try {
+      fontStat = await stat(fontFile);
+    } catch (error) {
+      throw new Error(
+        `Referenced Vinext font file is missing: ${encodedFontPath}`,
+        { cause: error },
+      );
+    }
+    if (!fontStat.isFile()) {
+      throw new Error(
+        `Referenced Vinext font path is not a file: ${encodedFontPath}`,
+      );
+    }
+  }),
+);
 await rm(workerDeployRedirect, { recursive: true, force: true });
 
 await Promise.all([
@@ -77,5 +146,5 @@ await Promise.all([
 ]);
 
 console.log(
-  `Cloudflare Pages output prepared at dist/pages (${rewrittenFontUrlCount} font URLs normalized).`,
+  `Cloudflare Pages output prepared at dist/pages (${rewrittenFontUrlCount} legacy font URLs normalized; ${encodedFontPaths.size} public font files verified).`,
 );
