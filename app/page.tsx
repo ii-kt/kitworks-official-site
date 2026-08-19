@@ -87,7 +87,7 @@ const nav: Array<{
 
 const panelNames: Record<PanelId, { en: string; ja: string; status: string }> = {
   index: { en: "Welcome", ja: "KiT Worksの案内", status: "SINGLE VIEW / CLOSE TO RETURN" },
-  portfolio: { en: "Portfolio", ja: "制作実績", status: "07 CASES / 2019—NOW / READ ONLY" },
+  portfolio: { en: "Portfolio", ja: "制作実績", status: "10 CASES / 2019—NOW / READ ONLY" },
   capabilities: { en: "Capabilities", ja: "対応領域", status: "THREE SIGNALS AVAILABLE" },
   process: { en: "Process", ja: "進め方", status: "BUILD SEQUENCE / 05 STEPS" },
   about: { en: "About KiT Works", ja: "KiT Worksについて", status: "INDEPENDENT PRACTICE / JAPAN" },
@@ -489,9 +489,9 @@ function PanelContent({
         <PanelKicker en="PORTFOLIO / PUBLISHED RECORD" ja="経歴・実績" />
         <section className="portfolio-hero">
           <div className="portfolio-hero__copy">
-            <p className="editorial-eyebrow" lang="en">AI / RAG / PMO / DEVELOPMENT</p>
-            <h1 id="panel-title">AI/RAG × PMOで、<br /><em>開発現場の情報整理と品質管理を前に進める。</em></h1>
-            <p className="panel-lead">RAG型仕様書チャットボット構築、成果物監査、トレーサビリティ管理、Jira運用、Slack活用まで。開発現場を理解した実務目線で、業務改善とプロジェクト推進を支援します。</p>
+            <p className="editorial-eyebrow" lang="en">AI / RAG / PM / DEVELOPMENT</p>
+            <h1 id="panel-title">AI/RAG × PMで、<br /><em>試作から業務適用まで、AIを現場で使える形にする。</em></h1>
+            <p className="panel-lead">RAG設計と参照範囲の制御、出力品質の評価設計、5名チームのAI案件PM、Jira運用と成果物監査まで。開発現場を理解した実務目線で、AI活用とプロジェクト推進を支援します。</p>
           </div>
           <PortfolioLedger />
         </section>
@@ -516,7 +516,7 @@ function PanelContent({
         </section>
 
         <section className="portfolio-record-section portfolio-cases-section" aria-labelledby="portfolio-cases-title">
-          <PortfolioSectionHeader number="02" en="SELECTED CASES" ja="代表実績" id="portfolio-cases-title" copy="公開済みの職務情報から、役割・課題・担当・貢献を省略せず記録しています。" />
+          <PortfolioSectionHeader number="02" en="SELECTED CASES" ja="代表実績" id="portfolio-cases-title" copy="公開している職務情報と実務記録から、役割・課題・担当・貢献を省略せず記録しています。" />
           <div className="portfolio-case-ledger">
             {portfolioCases.map((caseStudy) => (
               <article className="portfolio-case" key={caseStudy.number}>
@@ -536,11 +536,11 @@ function PanelContent({
         </section>
 
         <section className="portfolio-record-section portfolio-scope-section" aria-labelledby="portfolio-scope-title">
-          <PortfolioSectionHeader number="03" en="OPERATING SCOPE" ja="実務範囲" id="portfolio-scope-title" copy="AI/RAGの導入から、PMOとしての進行・成果物品質管理まで対応します。" />
+          <PortfolioSectionHeader number="03" en="OPERATING SCOPE" ja="実務範囲" id="portfolio-scope-title" copy="AI/RAGの設計・評価から、AI案件のPMとしての進行・成果物品質管理まで対応します。" />
           <div className="portfolio-scope-grid">
             <div className="portfolio-ai-scope">
               <ol className="portfolio-flow" aria-label="RAG活用フロー">
-                {["Documents", "Search", "Answer", "Review", "Task"].map((step, index) => <li key={step}><span>0{index + 1}</span>{step}</li>)}
+                {["Documents", "Scope", "Answer", "Evaluate", "Task"].map((step, index) => <li key={step}><span>0{index + 1}</span>{step}</li>)}
               </ol>
               <div className="portfolio-support-ledger">
                 {portfolioAiSupports.map((item, index) => (
@@ -550,8 +550,8 @@ function PanelContent({
             </div>
             <div className="portfolio-pmo-scope">
               <p className="editorial-object-label" lang="en">PMO / QUALITY CONTROL</p>
-              <h3>プロジェクト推進と、<br />品質管理をセットで。</h3>
-              <p>進捗・課題だけでなく、成果物、レビュー観点、トレーサビリティ、会議体まで整理します。</p>
+              <h3>AI案件の推進と、<br />品質管理をセットで。</h3>
+              <p>進捗・課題だけでなく、成果物、レビュー観点、トレーサビリティ、会議体、AI出力の最終確認まで整理します。</p>
               <ol>{portfolioPmoSupports.map((item, index) => <li key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</li>)}</ol>
             </div>
           </div>
@@ -571,7 +571,7 @@ function PanelContent({
         </section>
 
         <section className="portfolio-record-section portfolio-skills-section" aria-labelledby="portfolio-skills-title">
-          <PortfolioSectionHeader number="05" en="SKILL INDEX" ja="技術・ツール" id="portfolio-skills-title" copy="公開ポートフォリオに掲載されている技術・ツールを、領域ごとに整理しています。" />
+          <PortfolioSectionHeader number="05" en="SKILL INDEX" ja="技術・ツール" id="portfolio-skills-title" copy="実務で扱ってきた技術・ツールを、領域ごとに整理しています。" />
           <div className="portfolio-skill-index">
             {portfolioSkillGroups.map((group, index) => (
               <article key={group.title}><span>{String(index + 1).padStart(2, "0")}</span><h3>{group.title}</h3><p>{group.skills.join(" / ")}</p></article>
@@ -584,7 +584,7 @@ function PanelContent({
         </section>
 
         <footer className="portfolio-document-end">
-          <span lang="en">END OF DOCUMENT</span><p>07 CASES / CAREER 2019—NOW / SOURCE RECORD UPDATED {portfolioIdentity.updated}</p>
+          <span lang="en">END OF DOCUMENT</span><p>10 CASES / CAREER 2019—NOW / RECORD UPDATED {portfolioIdentity.updated}</p>
         </footer>
       </div>
     );
@@ -831,14 +831,14 @@ function PortfolioLedger() {
     <aside className="portfolio-ledger portfolio-dossier" aria-label="ポートフォリオ概要">
       <span className="editorial-object-label" lang="en">PROFESSIONAL RECORD / 2019—NOW</span>
       <h2>KiT Works Portfolio</h2>
-      <p>AI/RAG × PMO / DEVELOPMENT / QUALITY</p>
+      <p>AI/RAG × PM / DEVELOPMENT / QUALITY</p>
       <dl>
         <div><dt>STATUS</dt><dd><i /> PUBLISHED</dd></div>
         <div><dt>EXPERIENCE</dt><dd>ABOUT 7 YEARS</dd></div>
-        <div><dt>SELECTED CASES</dt><dd>07</dd></div>
+        <div><dt>SELECTED CASES</dt><dd>10</dd></div>
         <div><dt>UPDATED</dt><dd>{portfolioIdentity.updated}</dd></div>
       </dl>
-      <div className="portfolio-ledger__stamp"><span>PUBLISHED</span><b>RECORD</b><small>07 / 11</small></div>
+      <div className="portfolio-ledger__stamp"><span>PUBLISHED</span><b>RECORD</b><small>10 / 13</small></div>
     </aside>
   );
 }

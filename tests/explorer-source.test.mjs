@@ -321,7 +321,7 @@ test("builds Portfolio only from the published professional record", () => {
   assert.match(portfolioData, /8f0ef28dca60a8cc5e649bcd88b94e84466681e3/);
   assert.match(portfolioData, /src\/App\.tsx/);
   assert.match(portfolioData, /value:\s*"約7年"/);
-  assert.match(portfolioData, /value:\s*"5名チーム管理"/);
+  assert.match(portfolioData, /value:\s*"5名チームのPM"/);
 
   const cases = between(portfolioData, "export const portfolioCases", "export const portfolioAiSupports");
   const timeline = between(portfolioData, "export const portfolioTimeline", "export const portfolioTraining");
@@ -329,10 +329,24 @@ test("builds Portfolio only from the published professional record", () => {
   assert.notEqual(skillStart, -1, "published skill groups must be present");
   const skills = portfolioData.slice(skillStart);
 
-  assert.equal(occurrences(cases, /^\s*number:\s*"\d{2}"/gm), 7, "Portfolio must include all seven published cases");
-  assert.equal(occurrences(timeline, /^\s*\{ period:/gm), 11, "Portfolio must include all eleven published career entries");
+  assert.equal(occurrences(cases, /^\s*number:\s*"\d{2}"/gm), 10, "Portfolio must include all ten recorded cases");
+  assert.equal(occurrences(timeline, /^\s*\{ period:/gm), 13, "Portfolio must include all thirteen recorded career entries");
   assert.equal(occurrences(skills, /^\s*\{ title:/gm), 6, "Portfolio must include all six published skill groups");
   assert.doesNotMatch(portfolioData, /飯野 海斗|静岡県浜松市|ii\.kt@outlook\.com|certifications|Generative AI Passport|AWS Partner/);
+
+  for (const detail of [
+    /LangGraph/,
+    /参照する資料・情報の範囲を絞り込み/,
+    /評価担当LLM/,
+    /セルフリフレクション/,
+    /AI案件PM/,
+    /プロトタイプ試作1名/,
+    /JiraチケットのCSV出力/,
+    /ワークショップを企画・主催/,
+    /バイブコーディング/,
+  ]) {
+    assert.match(portfolioData, detail, "AI/PM record detail missing: " + detail);
+  }
 });
 
 test("uses a business-site information hierarchy inside every destination", () => {
