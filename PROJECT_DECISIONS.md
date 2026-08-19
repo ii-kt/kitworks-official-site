@@ -21,7 +21,7 @@ This file is the durable source of truth for future changes to this site.
 ## Content architecture
 
 - Upper navigation destinations: Portfolio, Capabilities, Process, About, Approach, FAQ, Start a Project, Availability, and System Info.
-- Portfolio will be created separately later. Keep only a clearly marked connection point for now.
+- Portfolio is a complete, self-contained document inside this site. Its facts are sourced from the user's published professional record at `https://ii-kt.github.io/kitworks-portfolio/`; keep that record as the factual source and do not invent or infer details that are not published there. Follow the current visible publication scope: do not reintroduce the removed contact/profile section or qualifications that the published page does not render.
 - Project information panels should prioritize Japanese clarity for Japanese customers, while retaining small English labels as part of the visual system.
 - The Project Brief should help visitors organize and copy an inquiry without requiring a fabricated contact address.
 
@@ -41,7 +41,7 @@ This file is the durable source of truth for future changes to this site.
 - The fixed motion benchmark for all inner pages is Recent Design's **AI Image Generation Reveal** for page decoding, plus **Border Beam Effect / Uploading Button** for hover, focus, press, processing, and completion feedback. Reproduce their interaction mechanics and timing closely in KiT Works' own palette and content; never reuse published source code or proprietary assets.
 - Opening a destination must feel like unresolved signal data becoming clear in place: grayscale tiles shimmer and disappear in a deterministic irregular order. Do not return to a generic fade-and-scale modal entrance.
 - Every frequent interaction must be designed in separate states: idle, hover, focus-visible, pressed, processing, success/error, and leave. Hover/focus receives one border-beam traversal and a quiet afterglow; press visibly sinks for roughly 90ms; processing may loop the beam; completion resolves and becomes still.
-- Do not apply one decorative template to every destination. Each panel must retain one content-specific visual object or spatial behavior: reserved radar, capability channels, process pipeline, direct-practice map, calibration plates, FAQ frequencies, local brief compiler, schedule scanner, and system layers.
+- Do not apply one decorative template to every destination. Each panel must retain one content-specific visual object or spatial behavior: published career dossier and case ledger, capability channels, process pipeline, direct-practice map, calibration plates, FAQ frequencies, local brief compiler, schedule scanner, and system layers.
 - Motion should become calm after the reveal. Avoid permanent border loops, continuous glitches, generic 3D tilt on every object, cursor hijacking, and effects that do not communicate state.
 - Mobile replaces hover with explicit tap/pressed feedback, uses a one-column reading order, and keeps the close control reachable. Reduced-motion keeps the same information and focus results with immediate or short-opacity transitions.
 
@@ -76,4 +76,4 @@ This file is the durable source of truth for future changes to this site.
 - Inside each destination, the reading order is proposition, explanation, page-specific evidence or concrete facts, then the destination's own next action or status. Abstract decoration cannot replace evidence.
 - Desktop uses an asymmetric editorial grid (normally seven columns for the main proposition and five for supporting facts). Japanese body copy stays near 28–40 characters per line and no wider than 600–660 px.
 - Uniform card dashboards are not the default. Use scale, whitespace, hairlines, and factual rows. Each page keeps a distinct composition without adding cross-destination navigation.
-- Welcome and About must show services and operating facts rather than generic diagrams. Portfolio must not fabricate cases, clients, metrics, or testimonials while its separate site is pending.
+- Welcome and About must show services and operating facts rather than generic diagrams. Portfolio must reproduce only facts from the published professional record and must not fabricate cases, clients, metrics, testimonials, qualifications, or outcomes.

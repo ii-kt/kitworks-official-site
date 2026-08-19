@@ -14,12 +14,13 @@ const destinationIds = [
   "system",
 ];
 
-const [page, css, decisions, layout, research] = await Promise.all([
+const [page, css, decisions, layout, research, portfolioData] = await Promise.all([
   readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
   readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   readFile(new URL("../PROJECT_DECISIONS.md", import.meta.url), "utf8"),
   readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
   readFile(new URL("../WEB_LAYOUT_RESEARCH.md", import.meta.url), "utf8"),
+  readFile(new URL("../app/portfolio-data.ts", import.meta.url), "utf8"),
 ]);
 
 function between(source, start, end) {
@@ -51,8 +52,13 @@ test("keeps the entrance as the only destination router", () => {
 
   assert.equal(
     occurrences(navModel, /soon:\s*true/g),
-    destinationIds.length - 1,
-    "every entrance destination except System info must remain marked SOON",
+    destinationIds.length - 2,
+    "every entrance destination except Portfolio and System info must remain marked SOON",
+  );
+  assert.doesNotMatch(
+    navModel,
+    /\{ label: "Portfolio"[^}]*soon:/,
+    "Portfolio must remain available without a SOON badge",
   );
   assert.doesNotMatch(
     navModel,
@@ -280,6 +286,11 @@ test("keeps distinct destination content and only content-specific interactions"
   assert.match(portfolio, /className="panel-view business-view portfolio-view"/);
   assert.match(portfolio, /className="portfolio-hero"[\s\S]*?<PortfolioLedger\s*\/>/);
   assert.match(portfolio, /className="portfolio-principles"/);
+  assert.match(portfolio, /portfolioCases\.map/);
+  assert.match(portfolio, /portfolioTimeline\.map/);
+  assert.match(portfolio, /portfolioSkillGroups\.map/);
+  assert.match(portfolio, /className="portfolio-document-end"/);
+  assert.doesNotMatch(portfolio, /RESERVED|PREPARING|TO BE ANNOUNCED|現在準備中|別サイトとして公開予定/);
   assert.match(page, /function ServiceBrief\(\)/);
   assert.match(about, /className="panel-view business-view about-view"/);
   assert.match(about, /className="about-hero"[\s\S]*?<ProfileSheet\s*\/>/);
@@ -303,6 +314,25 @@ test("keeps distinct destination content and only content-specific interactions"
   assert.match(page, /navigator\.clipboard\.writeText\(brief\)/);
   assert.match(project, /aria-live="polite"/);
   assert.doesNotMatch(project, /\bfetch\s*\(/);
+});
+
+test("builds Portfolio only from the published professional record", () => {
+  assert.match(portfolioData, /https:\/\/ii-kt\.github\.io\/kitworks-portfolio\//);
+  assert.match(portfolioData, /8f0ef28dca60a8cc5e649bcd88b94e84466681e3/);
+  assert.match(portfolioData, /src\/App\.tsx/);
+  assert.match(portfolioData, /value:\s*"約7年"/);
+  assert.match(portfolioData, /value:\s*"5名チーム管理"/);
+
+  const cases = between(portfolioData, "export const portfolioCases", "export const portfolioAiSupports");
+  const timeline = between(portfolioData, "export const portfolioTimeline", "export const portfolioTraining");
+  const skillStart = portfolioData.indexOf("export const portfolioSkillGroups");
+  assert.notEqual(skillStart, -1, "published skill groups must be present");
+  const skills = portfolioData.slice(skillStart);
+
+  assert.equal(occurrences(cases, /^\s*number:\s*"\d{2}"/gm), 7, "Portfolio must include all seven published cases");
+  assert.equal(occurrences(timeline, /^\s*\{ period:/gm), 11, "Portfolio must include all eleven published career entries");
+  assert.equal(occurrences(skills, /^\s*\{ title:/gm), 6, "Portfolio must include all six published skill groups");
+  assert.doesNotMatch(portfolioData, /飯野 海斗|静岡県浜松市|ii\.kt@outlook\.com|certifications|Generative AI Passport|AWS Partner/);
 });
 
 test("uses a business-site information hierarchy inside every destination", () => {

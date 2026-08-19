@@ -9,6 +9,17 @@ import {
   type FormEvent,
   type PointerEvent,
 } from "react";
+import {
+  portfolioAiSupports,
+  portfolioCases,
+  portfolioIdentity,
+  portfolioPmoSupports,
+  portfolioSkillGroups,
+  portfolioStats,
+  portfolioStrengths,
+  portfolioTimeline,
+  portfolioTraining,
+} from "./portfolio-data";
 
 type PanelId =
   | "index"
@@ -49,7 +60,7 @@ const nav: Array<{
     title: "Work",
     titleJa: "制作",
     links: [
-      { label: "Portfolio", labelJa: "制作実績", panel: "portfolio", soon: true },
+      { label: "Portfolio", labelJa: "制作実績", panel: "portfolio" },
       { label: "Capabilities", labelJa: "対応領域", panel: "capabilities", soon: true },
       { label: "Process", labelJa: "進め方", panel: "process", soon: true },
     ],
@@ -76,7 +87,7 @@ const nav: Array<{
 
 const panelNames: Record<PanelId, { en: string; ja: string; status: string }> = {
   index: { en: "Welcome", ja: "KiT Worksの案内", status: "SINGLE VIEW / CLOSE TO RETURN" },
-  portfolio: { en: "Portfolio", ja: "制作実績", status: "RESERVED / NOT CONNECTED" },
+  portfolio: { en: "Portfolio", ja: "制作実績", status: "07 CASES / 2019—NOW / READ ONLY" },
   capabilities: { en: "Capabilities", ja: "対応領域", status: "THREE SIGNALS AVAILABLE" },
   process: { en: "Process", ja: "進め方", status: "BUILD SEQUENCE / 05 STEPS" },
   about: { en: "About KiT Works", ja: "KiT Worksについて", status: "INDEPENDENT PRACTICE / JAPAN" },
@@ -89,7 +100,7 @@ const panelNames: Record<PanelId, { en: string; ja: string; status: string }> = 
 
 const panelFiles: Record<PanelId, string> = {
   index: "WELCOME.TXT",
-  portfolio: "PORTFOLIO.LNK",
+  portfolio: "PORTFOLIO.HTM",
   capabilities: "CAPABILITIES.HTM",
   process: "PROCESS.HTM",
   about: "ABOUT.HTM",
@@ -475,21 +486,106 @@ function PanelContent({
   if (panel === "portfolio") {
     return (
       <div className="panel-view business-view portfolio-view">
-        <PanelKicker en="MODULE 00 / RESERVED" ja="制作実績" />
+        <PanelKicker en="PORTFOLIO / PUBLISHED RECORD" ja="経歴・実績" />
         <section className="portfolio-hero">
           <div className="portfolio-hero__copy">
-            <p className="editorial-eyebrow" lang="en">PORTFOLIO / REMOTE DESTINATION</p>
-            <h1 id="panel-title">制作実績は、<br /><em>現在準備中です。</em></h1>
-            <p className="panel-lead">ポートフォリオは別サイトとして公開予定です。完成後は、背景・担当範囲・制作過程・結果まで読める事例として、この入口へ接続します。</p>
-            <p className="portfolio-release"><span>RELEASE POLICY</span> 架空の制作実績ではなく、公開できる仕事だけを掲載します。</p>
+            <p className="editorial-eyebrow" lang="en">AI / RAG / PMO / DEVELOPMENT</p>
+            <h1 id="panel-title">AI/RAG × PMOで、<br /><em>開発現場の情報整理と品質管理を前に進める。</em></h1>
+            <p className="panel-lead">RAG型仕様書チャットボット構築、成果物監査、トレーサビリティ管理、Jira運用、Slack活用まで。開発現場を理解した実務目線で、業務改善とプロジェクト推進を支援します。</p>
           </div>
           <PortfolioLedger />
         </section>
-        <section className="portfolio-principles" aria-label="掲載予定の情報">
-          <article><span>01 / CONTEXT</span><h2>背景と目的</h2><p>何を変えるための仕事だったか。</p></article>
-          <article><span>02 / ROLE</span><h2>担当した範囲</h2><p>設計・デザイン・実装のどこを担ったか。</p></article>
-          <article><span>03 / RESULT</span><h2>過程と結果</h2><p>判断と検証が、どんな成果へつながったか。</p></article>
+        <section className="portfolio-stats" aria-label="プロフィール概要">
+          {portfolioStats.map((stat) => (
+            <article key={stat.label}><span>{stat.label}</span><strong>{stat.value}</strong><p>{stat.note}</p></article>
+          ))}
         </section>
+
+        <section className="portfolio-record-section portfolio-practice-section" aria-labelledby="portfolio-practice-title">
+          <PortfolioSectionHeader number="01" en="PRACTICE" ja="相談できること" id="portfolio-practice-title" copy="AI活用、品質管理、開発を別々に扱わず、現場の業務フローとしてつなぎます。" />
+          <div className="portfolio-principles">
+            {portfolioStrengths.map((strength) => (
+              <article key={strength.number}>
+                <span>{strength.number} / PRACTICE</span>
+                <h2>{strength.title}</h2>
+                <p>{strength.lead}</p>
+                <ul>{strength.points.map((point) => <li key={point}>{point}</li>)}</ul>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="portfolio-record-section portfolio-cases-section" aria-labelledby="portfolio-cases-title">
+          <PortfolioSectionHeader number="02" en="SELECTED CASES" ja="代表実績" id="portfolio-cases-title" copy="公開済みの職務情報から、役割・課題・担当・貢献を省略せず記録しています。" />
+          <div className="portfolio-case-ledger">
+            {portfolioCases.map((caseStudy) => (
+              <article className="portfolio-case" key={caseStudy.number}>
+                <header><span>CASE {caseStudy.number}</span><small>{caseStudy.domain}</small></header>
+                <div className="portfolio-case__title"><h3>{caseStudy.title}</h3><p>{caseStudy.role}</p></div>
+                <dl className="portfolio-case__details">
+                  <div><dt>ISSUE / 課題</dt><dd>{caseStudy.challenge}</dd></div>
+                  <div><dt>SCOPE / 担当</dt><dd>{caseStudy.responsibility}</dd></div>
+                  <div><dt>CONTRIBUTION / 貢献</dt><dd>{caseStudy.contribution}</dd></div>
+                </dl>
+                <ul className="portfolio-tagline" aria-label={`Case ${caseStudy.number} の技術・ツール`}>
+                  {caseStudy.tags.map((tag) => <li key={tag}>{tag}</li>)}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="portfolio-record-section portfolio-scope-section" aria-labelledby="portfolio-scope-title">
+          <PortfolioSectionHeader number="03" en="OPERATING SCOPE" ja="実務範囲" id="portfolio-scope-title" copy="AI/RAGの導入から、PMOとしての進行・成果物品質管理まで対応します。" />
+          <div className="portfolio-scope-grid">
+            <div className="portfolio-ai-scope">
+              <ol className="portfolio-flow" aria-label="RAG活用フロー">
+                {["Documents", "Search", "Answer", "Review", "Task"].map((step, index) => <li key={step}><span>0{index + 1}</span>{step}</li>)}
+              </ol>
+              <div className="portfolio-support-ledger">
+                {portfolioAiSupports.map((item, index) => (
+                  <article key={item.title}><span>{String(index + 1).padStart(2, "0")}</span><div><h3>{item.title}</h3><p>{item.body}</p></div></article>
+                ))}
+              </div>
+            </div>
+            <div className="portfolio-pmo-scope">
+              <p className="editorial-object-label" lang="en">PMO / QUALITY CONTROL</p>
+              <h3>プロジェクト推進と、<br />品質管理をセットで。</h3>
+              <p>進捗・課題だけでなく、成果物、レビュー観点、トレーサビリティ、会議体まで整理します。</p>
+              <ol>{portfolioPmoSupports.map((item, index) => <li key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</li>)}</ol>
+            </div>
+          </div>
+        </section>
+
+        <section className="portfolio-record-section portfolio-history-section" aria-labelledby="portfolio-history-title">
+          <PortfolioSectionHeader number="04" en="EXPERIENCE LEDGER" ja="詳細経歴" id="portfolio-history-title" copy="2019年から現在までの開発・PMO・PL・業務改善経験です。" />
+          <ol className="portfolio-timeline">
+            {portfolioTimeline.map((item, index) => (
+              <li key={`${item.period}-${item.title}`}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <time>{item.period}</time>
+                <div><small>{item.meta}</small><h3>{item.title}</h3><p>{item.summary}</p></div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="portfolio-record-section portfolio-skills-section" aria-labelledby="portfolio-skills-title">
+          <PortfolioSectionHeader number="05" en="SKILL INDEX" ja="技術・ツール" id="portfolio-skills-title" copy="公開ポートフォリオに掲載されている技術・ツールを、領域ごとに整理しています。" />
+          <div className="portfolio-skill-index">
+            {portfolioSkillGroups.map((group, index) => (
+              <article key={group.title}><span>{String(index + 1).padStart(2, "0")}</span><h3>{group.title}</h3><p>{group.skills.join(" / ")}</p></article>
+            ))}
+          </div>
+          <div className="portfolio-training">
+            <p className="editorial-object-label" lang="en">TRAINING / FOUNDATIONS</p>
+            <ul>{portfolioTraining.map((item) => <li key={item}>{item}</li>)}</ul>
+          </div>
+        </section>
+
+        <footer className="portfolio-document-end">
+          <span lang="en">END OF DOCUMENT</span><p>07 CASES / CAREER 2019—NOW / SOURCE RECORD UPDATED {portfolioIdentity.updated}</p>
+        </footer>
       </div>
     );
   }
@@ -706,6 +802,16 @@ function PanelKicker({ en, ja }: { en: string; ja: string }) {
   return <p className="panel-kicker"><span lang="en">{en}</span><i aria-hidden="true" /><span lang="ja">{ja}</span></p>;
 }
 
+function PortfolioSectionHeader({ number, en, ja, id, copy }: { number: string; en: string; ja: string; id: string; copy: string }) {
+  return (
+    <header className="portfolio-section-header">
+      <span>{number}</span>
+      <div><small lang="en">{en}</small><h2 id={id}>{ja}</h2></div>
+      <p>{copy}</p>
+    </header>
+  );
+}
+
 function ServiceBrief() {
   return (
     <aside className="service-brief" aria-label="KiT Worksの対応概要">
@@ -722,15 +828,17 @@ function ServiceBrief() {
 
 function PortfolioLedger() {
   return (
-    <aside className="portfolio-ledger" aria-label="ポートフォリオ公開準備状況">
-      <span className="editorial-object-label" lang="en">RELEASE LEDGER / MODULE 00</span>
+    <aside className="portfolio-ledger portfolio-dossier" aria-label="ポートフォリオ概要">
+      <span className="editorial-object-label" lang="en">PROFESSIONAL RECORD / 2019—NOW</span>
+      <h2>KiT Works Portfolio</h2>
+      <p>AI/RAG × PMO / DEVELOPMENT / QUALITY</p>
       <dl>
-        <div><dt>STATUS</dt><dd><i /> PREPARING</dd></div>
-        <div><dt>FORMAT</dt><dd>SEPARATE SITE</dd></div>
-        <div><dt>ROUTE</dt><dd>RESERVED</dd></div>
-        <div><dt>RELEASE</dt><dd>TO BE ANNOUNCED</dd></div>
+        <div><dt>STATUS</dt><dd><i /> PUBLISHED</dd></div>
+        <div><dt>EXPERIENCE</dt><dd>ABOUT 7 YEARS</dd></div>
+        <div><dt>SELECTED CASES</dt><dd>07</dd></div>
+        <div><dt>UPDATED</dt><dd>{portfolioIdentity.updated}</dd></div>
       </dl>
-      <div className="portfolio-ledger__stamp"><span>CONNECTION</span><b>RESERVED</b><small>00 / 00</small></div>
+      <div className="portfolio-ledger__stamp"><span>PUBLISHED</span><b>RECORD</b><small>07 / 11</small></div>
     </aside>
   );
 }
