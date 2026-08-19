@@ -2562,6 +2562,21 @@ button { -webkit-tap-highlight-color:transparent; }
 .portfolio-hero {
   border-bottom:1px solid var(--modern-line);
 }
+/* Japanese headlines break between phrases, never mid-word: <wbr> marks the
+   only breakpoints, and anywhere-wrap stays as the narrow-viewport safety net. */
+.kw95-window .kw95-document .business-view .portfolio-hero h1,
+.kw95-overlay[data-phase] .kw95-document .business-view .portfolio-hero h1 {
+  word-break:keep-all;
+  overflow-wrap:anywhere;
+  text-wrap:pretty;
+}
+@media (max-width:760px) {
+  /* Keep AI/RAG × PM on one line so the headline never splits at the symbol. */
+  .kw95-window .kw95-document .business-view .portfolio-hero h1,
+  .kw95-overlay[data-phase] .kw95-document .business-view .portfolio-hero h1 {
+    font-size:clamp(30px,8.6vw,46px);
+  }
+}
 .portfolio-dossier h2 {
   margin:clamp(30px,4vh,48px) 0 8px;
   color:var(--modern-ink);
