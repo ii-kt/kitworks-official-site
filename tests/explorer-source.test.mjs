@@ -364,6 +364,50 @@ test("uses a business-site information hierarchy inside every destination", () =
   assert.match(css, /@media \(max-width:760px\)[\s\S]*?\.welcome-hero,[\s\S]*?grid-template-columns:1fr/);
 });
 
+test("keeps every destination readable inside narrow mobile documents", () => {
+  const safeguards = between(
+    css,
+    "/* Final mobile readability safeguards, kept last so every destination wins the cascade. */",
+    "/* End final mobile readability safeguards. */",
+  );
+
+  for (const layout of [
+    "welcome-hero",
+    "portfolio-hero",
+    "about-hero",
+    "business-intro",
+    "system-view__composition",
+    "process-layout",
+    "approach-layout",
+    "faq-layout",
+    "project-layout",
+    "availability-layout",
+  ]) {
+    assert.match(safeguards, new RegExp(`\\.${layout}(?:,|\\n)`), `${layout} needs a mobile single-column guard`);
+  }
+
+  assert.match(
+    safeguards,
+    /\.kw95-document \.system-view__composition\s*\{[\s\S]*?grid-template-columns:minmax\(0,1fr\)[\s\S]*?align-items:start/,
+    "System info must not retain its desktop min-content track on mobile",
+  );
+  assert.match(
+    safeguards,
+    /\.kw95-document \.process-list li\s*\{[\s\S]*?grid-template-columns:34px minmax\(0,1fr\)/,
+    "Process copy must use the full reading column on mobile",
+  );
+  assert.match(
+    safeguards,
+    /\.kw95-document \.availability-layout \.schedule-gate li\s*\{[\s\S]*?grid-template-columns:38px minmax\(0,1fr\)/,
+  );
+  assert.match(safeguards, /\.kw95-document \.project-layout \.panel-action\s*\{[\s\S]*?min-width:0/);
+  assert.match(
+    safeguards,
+    /@media \(max-width:480px\)[\s\S]*?\.kw95-window \.kw95-document \.business-view h1,[\s\S]*?font-size:clamp\(30px,9vw,38px\)/,
+    "non-Portfolio headlines must fit their authored phrase breaks at phone widths",
+  );
+});
+
 test("records at least 23 directly reviewed official business sites", () => {
   const officialSites = research.match(/^\d+\. \[[^\]]+\]\(https:\/\/[^)]+\)$/gm) ?? [];
   assert.ok(officialSites.length >= 23, `expected at least 23 official sites, found ${officialSites.length}`);

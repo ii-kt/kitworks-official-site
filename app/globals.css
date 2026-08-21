@@ -3437,3 +3437,79 @@ button { -webkit-tap-highlight-color:transparent; }
     transform:none!important;
   }
 }
+
+/* Final mobile readability safeguards, kept last so every destination wins the cascade. */
+@media (min-width:761px) and (max-width:1100px) {
+  .kw95-document .system-view__composition {
+    grid-template-columns:minmax(0,1.25fr) minmax(290px,.75fr);
+    gap:40px;
+  }
+}
+
+@media (max-width:760px) {
+  .kw95-document .business-view :where(section,article,aside,div,form,dl,ol,ul) {
+    min-width:0;
+  }
+
+  .kw95-document .business-view :is(
+    .welcome-hero,
+    .portfolio-hero,
+    .about-hero,
+    .business-intro,
+    .system-view__composition,
+    .process-layout,
+    .approach-layout,
+    .faq-layout,
+    .project-layout,
+    .availability-layout
+  ) {
+    grid-template-columns:minmax(0,1fr);
+    gap:38px;
+  }
+
+  .kw95-document .system-view__composition {
+    grid-template-columns:minmax(0,1fr);
+    gap:38px;
+    align-items:start;
+  }
+
+  .kw95-document .process-list li {
+    grid-template-columns:34px minmax(0,1fr);
+    gap:8px 12px;
+    align-items:start;
+  }
+  .kw95-document .process-list li > b {
+    grid-column:1;
+    grid-row:1;
+    padding-top:5px;
+  }
+  .kw95-document .process-list li > span {
+    grid-column:2;
+    grid-row:1;
+  }
+  .kw95-document .process-list li > p {
+    grid-column:2;
+    grid-row:2;
+  }
+
+  .kw95-document .availability-layout .schedule-gate li {
+    grid-template-columns:38px minmax(0,1fr);
+  }
+
+  .kw95-document .project-intro .local-note {
+    display:block;
+  }
+  .kw95-document .project-layout .panel-action {
+    width:100%;
+    min-width:0;
+  }
+}
+
+@media (max-width:480px) {
+  .kw95-window .kw95-document .business-view h1,
+  .kw95-overlay[data-phase] .kw95-document .business-view h1 {
+    font-size:clamp(30px,9vw,38px);
+    line-height:1.08;
+  }
+}
+/* End final mobile readability safeguards. */
