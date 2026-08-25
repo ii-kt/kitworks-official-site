@@ -97,6 +97,13 @@ test("uses the supplied logo set by role without changing the entrance identity"
   assert.match(css, /\.kw95-fileband__icon\s*\{[^}]*width:\s*28px[^}]*background:[^}]*22px auto no-repeat/s);
   assert.match(page, /className="profile-sheet__brand"[\s\S]*?KiT Works — Systems, Products and AI/);
   assert.match(css, /url\("\/branding\/KiTWorksLogo-transparent\.svg"\)/);
+  assert.match(css, /\.profile-sheet\s*\{[^}]*--profile-sheet-gutter:clamp\(20px,2vw,28px\)/s);
+  assert.match(css, /\.profile-sheet__brand\s*\{[^}]*background-position:var\(--profile-sheet-gutter\) center/s);
+  assert.match(css, /\.profile-sheet header\s*\{[^}]*padding-inline:var\(--profile-sheet-gutter\)/s);
+  assert.match(css, /\.profile-sheet dl div\s*\{[^}]*padding:12px var\(--profile-sheet-gutter\)/s);
+  assert.match(css, /\.profile-sheet > p\s*\{[^}]*padding:14px var\(--profile-sheet-gutter\)/s);
+  assert.match(css, /@media \(max-width:760px\)[\s\S]*?\.profile-sheet\s*\{ --profile-sheet-gutter:18px; \}/);
+  assert.match(css, /@media \(max-width:360px\)[\s\S]*?\.profile-sheet\s*\{ --profile-sheet-gutter:16px; \}/);
   assert.match(sourceLogo, /<rect width="1000" height="1000" fill="white"\/>/);
   assert.doesNotMatch(displayLogo, /<rect width="1000" height="1000" fill="white"\/>/);
   assert.match(displayLogo, /viewBox="120 240 760 525"/);
