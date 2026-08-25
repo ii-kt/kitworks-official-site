@@ -643,11 +643,13 @@ button { -webkit-tap-highlight-color:transparent; }
   height:18px;
   margin-right:6px;
   border:1px solid #fff;
-  color:var(--kw95-signal);
-  background:#050922;
+  background-color:#f6f5ef;
+  background-image:url("/branding/Mameta.svg");
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:15px auto;
   box-shadow:inset -2px -2px #5c6177;
   place-items:center;
-  font:700 10px/1 Arial,sans-serif;
 }
 
 .kw95-titlebar__title {
@@ -770,11 +772,13 @@ button { -webkit-tap-highlight-color:transparent; }
   width:18px;
   height:18px;
   border:1px solid #fff;
-  color:var(--kw95-signal);
-  background:#050922;
+  background-color:#f6f5ef;
+  background-image:url("/branding/Mameta.svg");
+  background-position:center;
+  background-repeat:no-repeat;
+  background-size:15px auto;
   box-shadow:inset -2px -2px #5c6177;
   place-items:center;
-  font:700 9px/1 Arial,sans-serif;
 }
 .kw95-fileband > span:nth-child(2) {
   min-width:0;
@@ -3025,6 +3029,14 @@ button { -webkit-tap-highlight-color:transparent; }
   font:700 9px/1.5 var(--font-sans),sans-serif;
   letter-spacing:.12em;
 }
+.portfolio-document-end__signature { display:flex; align-items:center; gap:18px; }
+.portfolio-document-end__wordmark {
+  display:block;
+  width:108px;
+  height:15px;
+  flex:0 0 auto;
+  background:url("/branding/KiTWorks.svg") left center/contain no-repeat;
+}
 .portfolio-document-end span { color:var(--modern-accent); }
 .portfolio-document-end p { margin:0; text-align:right; }
 
@@ -3149,7 +3161,12 @@ button { -webkit-tap-highlight-color:transparent; }
   align-items:center;
   padding:10px 0 clamp(38px,5vh,60px);
 }
-.profile-sheet { align-self:stretch; display:grid; min-height:360px; grid-template-rows:auto 1fr auto; border:0; border-block:1px solid var(--modern-line); }
+.profile-sheet { align-self:stretch; display:grid; min-height:420px; grid-template-rows:auto auto 1fr auto; border:0; border-block:1px solid var(--modern-line); }
+.profile-sheet__brand {
+  min-height:118px;
+  border-bottom:1px solid var(--modern-line);
+  background:url("/branding/KiTWorksLogo.svg") left center/110px 110px no-repeat;
+}
 .profile-sheet dl { margin:0; }
 .profile-sheet dl div { display:grid; min-height:56px; grid-template-columns:88px 1fr; align-items:center; border-bottom:1px solid var(--modern-line); }
 .profile-sheet dt { color:var(--modern-accent); font:700 9px/1 var(--font-sans),sans-serif; letter-spacing:.12em; }
@@ -3304,6 +3321,7 @@ button { -webkit-tap-highlight-color:transparent; }
   .service-brief,
   .profile-sheet,
   .kw95-document .portfolio-ledger { min-height:0; }
+  .profile-sheet__brand { min-height:104px; background-size:96px 96px; }
   .kw95-document .portfolio-ledger__stamp { position:static; margin:22px 0 0 auto; }
   .portfolio-stats { grid-template-columns:1fr; }
   .portfolio-stats article,
@@ -3381,6 +3399,8 @@ button { -webkit-tap-highlight-color:transparent; }
   .portfolio-skill-index p,
   .portfolio-training li { font-size:13px; }
   .portfolio-document-end { display:block; margin-top:68px; }
+  .portfolio-document-end__signature { align-items:flex-start; flex-direction:column; gap:13px; }
+  .portfolio-document-end__wordmark { width:124px; height:17px; }
   .portfolio-document-end p { margin-top:10px; text-align:left; }
   .kw95-document .welcome-view .operator-note { padding-top:18px; }
   .intro-facts { grid-template-columns:1fr; }

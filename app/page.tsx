@@ -395,7 +395,7 @@ export default function Home() {
                 <span className="panel-frame-beam" aria-hidden="true" />
 
                 <header className="kw95-titlebar">
-                  <span className="kw95-app-icon" aria-hidden="true">K</span>
+                  <span className="kw95-app-icon" aria-hidden="true" />
                   <span className="kw95-titlebar__title" id="kw95-window-title">KiT Works — {panelNames[displayedPanel].en.toUpperCase()}</span>
                   <span className="kw95-titlebar__signal" lang="en"><i /> CH {panelChannels[displayedPanel]} / 10</span>
                   <div className="kw95-window-controls">
@@ -404,7 +404,7 @@ export default function Home() {
                 </header>
 
                 <div className="kw95-fileband" aria-label="表示中のファイル">
-                  <span className="kw95-fileband__icon" aria-hidden="true">K</span>
+                  <span className="kw95-fileband__icon" aria-hidden="true" />
                   <span>K:\KIT-WORKS\{panelFiles[displayedPanel]}</span>
                   <small lang="en">READ ONLY</small>
                 </div>
@@ -584,7 +584,11 @@ function PanelContent({
         </section>
 
         <footer className="portfolio-document-end">
-          <span lang="en">END OF DOCUMENT</span><p>10 CASES / CAREER 2019—NOW / RECORD UPDATED {portfolioIdentity.updated}</p>
+          <div className="portfolio-document-end__signature">
+            <span className="portfolio-document-end__wordmark" role="img" aria-label="KiT Works" />
+            <span lang="en">END OF DOCUMENT</span>
+          </div>
+          <p>10 CASES / CAREER 2019—NOW / RECORD UPDATED {portfolioIdentity.updated}</p>
         </footer>
       </div>
     );
@@ -846,6 +850,7 @@ function PortfolioLedger() {
 function ProfileSheet() {
   return (
     <aside className="profile-sheet" aria-label="KiT Worksの事業プロフィール">
+      <div className="profile-sheet__brand" role="img" aria-label="KiT Works — Systems, Products and AI" />
       <header><span lang="en">PRACTICE PROFILE</span><small>事業概要</small></header>
       <dl>
         <div><dt>FORM</dt><dd>個人事業</dd></div>

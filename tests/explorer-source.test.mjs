@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
 const destinationIds = [
@@ -74,6 +74,26 @@ test("keeps the entrance as the only destination router", () => {
     page,
     /className="operator-note"[\s\S]*?閉じると、入口から別の項目を選べます。/,
   );
+});
+
+test("uses the supplied logo set by role without changing the entrance identity", async () => {
+  await Promise.all(
+    ["Mameta.svg", "KiTWorks.svg", "KiTWorksLogo.svg"].map((file) =>
+      access(new URL(`../public/branding/${file}`, import.meta.url)),
+    ),
+  );
+
+  const entrance = between(page, '<header className="footer"', "{displayedPanel && (");
+
+  assert.match(layout, /icons:\s*\{[\s\S]*?\/branding\/Mameta\.svg/);
+  assert.equal(occurrences(css, /url\("\/branding\/Mameta\.svg"\)/g), 2);
+  assert.match(page, /className="kw95-app-icon" aria-hidden="true"\s*\/>/);
+  assert.match(page, /className="kw95-fileband__icon" aria-hidden="true"\s*\/>/);
+  assert.match(page, /className="profile-sheet__brand"[\s\S]*?KiT Works — Systems, Products and AI/);
+  assert.match(css, /url\("\/branding\/KiTWorksLogo\.svg"\)/);
+  assert.match(page, /className="portfolio-document-end__wordmark"[\s\S]*?aria-label="KiT Works"/);
+  assert.match(css, /url\("\/branding\/KiTWorks\.svg"\)/);
+  assert.doesNotMatch(entrance, /\/branding\//, "the landscape entrance must keep its existing typographic identity");
 });
 
 test("renders one read-only Windows-style document with Close as its only chrome action", () => {
@@ -383,7 +403,7 @@ test("keeps every destination readable inside narrow mobile documents", () => {
     "project-layout",
     "availability-layout",
   ]) {
-    assert.match(safeguards, new RegExp(`\\.${layout}(?:,|\\n)`), `${layout} needs a mobile single-column guard`);
+    assert.match(safeguards, new RegExp(`\\.${layout}(?:,|\\r?\\n)`), `${layout} needs a mobile single-column guard`);
   }
 
   assert.match(

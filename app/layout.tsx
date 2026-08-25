@@ -36,6 +36,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title,
     description,
+    icons: {
+      icon: [{ url: "/branding/Mameta.svg", type: "image/svg+xml" }],
+      shortcut: "/branding/Mameta.svg",
+    },
     openGraph: { title, description, url: origin, siteName: "KiT Works", type: "website", locale: "ja_JP", images: [{ url: `${origin}/og.png`, width: 1734, height: 907, alt: "KiT Works - Independent Design and Development Practice" }] },
     twitter: { card: "summary_large_image", title, description, images: [`${origin}/og.png`] },
   };
