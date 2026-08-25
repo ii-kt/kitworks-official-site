@@ -78,10 +78,14 @@ test("keeps the entrance as the only destination router", () => {
 
 test("uses the supplied logo set by role without changing the entrance identity", async () => {
   await Promise.all(
-    ["Mameta.svg", "KiTWorks.svg", "KiTWorksLogo.svg"].map((file) =>
+    ["Mameta.svg", "KiTWorks.svg", "KiTWorksLogo.svg", "KiTWorksLogo-transparent.svg"].map((file) =>
       access(new URL(`../public/branding/${file}`, import.meta.url)),
     ),
   );
+  const [sourceLogo, displayLogo] = await Promise.all([
+    readFile(new URL("../public/branding/KiTWorksLogo.svg", import.meta.url), "utf8"),
+    readFile(new URL("../public/branding/KiTWorksLogo-transparent.svg", import.meta.url), "utf8"),
+  ]);
 
   const entrance = between(page, '<header className="footer"', "{displayedPanel && (");
 
@@ -89,8 +93,13 @@ test("uses the supplied logo set by role without changing the entrance identity"
   assert.equal(occurrences(css, /url\("\/branding\/Mameta\.svg"\)/g), 2);
   assert.match(page, /className="kw95-app-icon" aria-hidden="true"\s*\/>/);
   assert.match(page, /className="kw95-fileband__icon" aria-hidden="true"\s*\/>/);
+  assert.match(css, /\.kw95-app-icon\s*\{[^}]*flex:\s*0 0 28px[^}]*background:[^}]*22px auto no-repeat/s);
+  assert.match(css, /\.kw95-fileband__icon\s*\{[^}]*width:\s*28px[^}]*background:[^}]*22px auto no-repeat/s);
   assert.match(page, /className="profile-sheet__brand"[\s\S]*?KiT Works — Systems, Products and AI/);
-  assert.match(css, /url\("\/branding\/KiTWorksLogo\.svg"\)/);
+  assert.match(css, /url\("\/branding\/KiTWorksLogo-transparent\.svg"\)/);
+  assert.match(sourceLogo, /<rect width="1000" height="1000" fill="white"\/>/);
+  assert.doesNotMatch(displayLogo, /<rect width="1000" height="1000" fill="white"\/>/);
+  assert.match(displayLogo, /viewBox="120 240 760 525"/);
   assert.match(page, /className="portfolio-document-end__wordmark"[\s\S]*?aria-label="KiT Works"/);
   assert.match(css, /url\("\/branding\/KiTWorks\.svg"\)/);
   assert.doesNotMatch(entrance, /\/branding\//, "the landscape entrance must keep its existing typographic identity");
@@ -191,7 +200,13 @@ test("preserves modal semantics, focus trapping, Escape, and focus return", () =
 });
 
 test("keeps the CRT signal composited inside the photographed glass", () => {
-  const crtMarkup = between(page, '<button\n            ref={screenRef}', "</button>");
+  const screenRefIndex = page.indexOf("ref={screenRef}");
+  const crtButtonStart = page.lastIndexOf("<button", screenRefIndex);
+  const crtButtonEnd = page.indexOf("</button>", screenRefIndex);
+  assert.notEqual(screenRefIndex, -1, "the CRT screen trigger is required");
+  assert.notEqual(crtButtonStart, -1, "the CRT screen button start is required");
+  assert.notEqual(crtButtonEnd, -1, "the CRT screen button end is required");
+  const crtMarkup = page.slice(crtButtonStart, crtButtonEnd);
   const mobileEntranceStyles = between(
     css,
     "@media (max-width:700px) {",

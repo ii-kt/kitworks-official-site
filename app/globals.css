@@ -638,17 +638,13 @@ button { -webkit-tap-highlight-color:transparent; }
   position:relative;
   z-index:2;
   display:inline-grid;
-  flex:0 0 18px;
-  width:18px;
+  flex:0 0 28px;
+  width:28px;
   height:18px;
   margin-right:6px;
   border:1px solid #fff;
-  background-color:#f6f5ef;
-  background-image:url("/branding/Mameta.svg");
-  background-position:center;
-  background-repeat:no-repeat;
-  background-size:15px auto;
-  box-shadow:inset -2px -2px #5c6177;
+  background:var(--kw95-gray) url("/branding/Mameta.svg") center/22px auto no-repeat;
+  box-shadow:inset 1px 1px #fff,inset -1px -1px #5c6177;
   place-items:center;
 }
 
@@ -757,7 +753,7 @@ button { -webkit-tap-highlight-color:transparent; }
 .kw95-fileband {
   display:grid;
   flex:0 0 30px;
-  grid-template-columns:20px minmax(0,1fr) auto;
+  grid-template-columns:30px minmax(0,1fr) auto;
   min-height:30px;
   align-items:center;
   gap:5px;
@@ -769,15 +765,11 @@ button { -webkit-tap-highlight-color:transparent; }
 }
 .kw95-fileband__icon {
   display:grid;
-  width:18px;
+  width:28px;
   height:18px;
   border:1px solid #fff;
-  background-color:#f6f5ef;
-  background-image:url("/branding/Mameta.svg");
-  background-position:center;
-  background-repeat:no-repeat;
-  background-size:15px auto;
-  box-shadow:inset -2px -2px #5c6177;
+  background:var(--kw95-gray) url("/branding/Mameta.svg") center/22px auto no-repeat;
+  box-shadow:inset 1px 1px #fff,inset -1px -1px #5c6177;
   place-items:center;
 }
 .kw95-fileband > span:nth-child(2) {
@@ -3165,7 +3157,7 @@ button { -webkit-tap-highlight-color:transparent; }
 .profile-sheet__brand {
   min-height:118px;
   border-bottom:1px solid var(--modern-line);
-  background:url("/branding/KiTWorksLogo.svg") left center/110px 110px no-repeat;
+  background:transparent url("/branding/KiTWorksLogo-transparent.svg") left center/150px auto no-repeat;
 }
 .profile-sheet dl { margin:0; }
 .profile-sheet dl div { display:grid; min-height:56px; grid-template-columns:88px 1fr; align-items:center; border-bottom:1px solid var(--modern-line); }
@@ -3321,7 +3313,7 @@ button { -webkit-tap-highlight-color:transparent; }
   .service-brief,
   .profile-sheet,
   .kw95-document .portfolio-ledger { min-height:0; }
-  .profile-sheet__brand { min-height:104px; background-size:96px 96px; }
+  .profile-sheet__brand { min-height:104px; background-size:132px auto; }
   .kw95-document .portfolio-ledger__stamp { position:static; margin:22px 0 0 auto; }
   .portfolio-stats { grid-template-columns:1fr; }
   .portfolio-stats article,
