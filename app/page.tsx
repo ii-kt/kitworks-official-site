@@ -342,8 +342,8 @@ export default function Home() {
             KiT Works
           </button>
           <p lang="en">
-            Independent design and development practice.
-            <br />From concept to interface, built as one system.
+            Independent AI, PM &amp; engineering practice.
+            <br />From concept to implementation, built for real-world use.
           </p>
           <small lang="en">&copy; 2026 KIT WORKS / INDEPENDENT PRACTICE</small>
         </section>
