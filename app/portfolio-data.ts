@@ -22,8 +22,8 @@ export const portfolioStats = [
 export const portfolioStrengths = [
   {
     number: "01",
-    title: "AI/RAGを業務フローに組み込む",
-    lead: "仕様書探索、参照範囲の制御、回答品質の確認まで、現場の確認作業に合わせて設計します。",
+    title: "AI/RAG / 業務フロー設計",
+    lead: "仕様書探索、参照範囲制御、回答品質確認を、現場の確認作業に合わせて設計・実装。",
     points: [
       "RAG型仕様書チャットボット構築",
       "LangGraphによる参照範囲・ワークフロー制御",
@@ -33,8 +33,8 @@ export const portfolioStrengths = [
   },
   {
     number: "02",
-    title: "AI案件のPMとして、試作から業務適用まで進める",
-    lead: "実現可能性を試作で示しながら、要望整理、優先順位付け、進捗・課題管理、品質確認を回します。",
+    title: "AI案件PM / PoC〜業務適用",
+    lead: "試作による実現可能性確認、要望整理、優先順位付け、進捗・課題管理、品質確認を担当。",
     points: [
       "5名チームのPM・流動的な役割設計",
       "Jiraチケット運用・週次報告・リーダー会資料作成",
@@ -44,8 +44,8 @@ export const portfolioStrengths = [
   },
   {
     number: "03",
-    title: "要件・仕様・開発をつなぐ",
-    lead: "顧客要望や曖昧な論点を、仕様、設計、タスク、テスト観点へ落とし込みます。",
+    title: "要件整理 / 仕様策定 / 開発",
+    lead: "顧客要望や曖昧な論点を、仕様、設計、タスク、テスト観点へ具体化。",
     points: ["顧客折衝・仕様策定", "C/C++・Python・C#開発", "車載・組み込み・ログ基盤・クラウド連携"],
   },
 ];
