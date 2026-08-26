@@ -517,7 +517,7 @@ function PanelContent({
         </section>
 
         <section className="portfolio-record-section portfolio-cases-section" aria-labelledby="portfolio-cases-title">
-          <PortfolioSectionHeader number="02" en="SELECTED CASES" ja="代表実績" id="portfolio-cases-title" copy="公開している職務情報と実務記録から、役割・課題・担当・貢献を省略せず記録しています。" />
+          <PortfolioSectionHeader number="02" en="SELECTED CASES" ja="代表実績" id="portfolio-cases-title" copy="代表案件を、課題・役割だけでなく、制約、判断、進め方、成果までケーススタディとして記録しています。" />
           <div className="portfolio-case-ledger">
             {portfolioCases.map((caseStudy) => (
               <article className="portfolio-case" key={caseStudy.number}>
@@ -528,6 +528,21 @@ function PanelContent({
                   <div><dt>SCOPE / 担当</dt><dd>{caseStudy.responsibility}</dd></div>
                   <div><dt>CONTRIBUTION / 貢献</dt><dd>{caseStudy.contribution}</dd></div>
                 </dl>
+                <details className="portfolio-deep-dive">
+                  <summary>
+                    <span className="portfolio-deep-dive__toggle" aria-hidden="true" />
+                    <span className="portfolio-deep-dive__heading"><small lang="en">DEEP DIVE / CASE STUDY</small><b>判断と進め方を見る</b></span>
+                  </summary>
+                  <div className="portfolio-deep-dive__body">
+                    <dl>
+                      <div><dt>CONTEXT / 背景</dt><dd>{caseStudy.deepDive.context}</dd></div>
+                      <div><dt>CONSTRAINTS / 制約</dt><dd>{caseStudy.deepDive.constraints}</dd></div>
+                      <div><dt>DECISION / 判断</dt><dd>{caseStudy.deepDive.decision}</dd></div>
+                      <div><dt>PROCESS / 進め方</dt><dd>{caseStudy.deepDive.process}</dd></div>
+                      <div><dt>OUTCOME / 成果</dt><dd>{caseStudy.deepDive.outcome}</dd></div>
+                    </dl>
+                  </div>
+                </details>
                 <ul className="portfolio-tagline" aria-label={`Case ${caseStudy.number} の技術・ツール`}>
                   {caseStudy.tags.map((tag) => <li key={tag}>{tag}</li>)}
                 </ul>
