@@ -480,6 +480,7 @@ function PanelContent({
           <article><span>03 / MADE IN JAPAN</span><h2>日本語で直接相談できる</h2><p>要件が固まっていない段階から、目的と優先順位を整理します。</p></article>
         </section>
         <p className="operator-note"><span lang="en">OPERATOR NOTE</span> 閉じると、入口から別の項目を選べます。</p>
+        <DocumentFooter meta="WELCOME / KIT WORKS / 2026" />
       </div>
     );
   }
@@ -598,14 +599,7 @@ function PanelContent({
             <ul>{portfolioTraining.map((item) => <li key={item}>{item}</li>)}</ul>
           </div>
         </section>
-
-        <footer className="portfolio-document-end">
-          <div className="portfolio-document-end__signature">
-            <span className="portfolio-document-end__wordmark" role="img" aria-label="KiT Works" />
-            <span lang="en">END OF DOCUMENT</span>
-          </div>
-          <p>10 CASES / CAREER 2019—NOW / RECORD UPDATED {portfolioIdentity.updated}</p>
-        </footer>
+        <DocumentFooter meta={"10 CASES / CAREER 2019—NOW / RECORD UPDATED " + portfolioIdentity.updated} />
       </div>
     );
   }
@@ -746,14 +740,7 @@ function PanelContent({
             {careerRecord.selfPr.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
           </div>
         </section>
-
-        <footer className="portfolio-document-end">
-          <div className="portfolio-document-end__signature">
-            <span className="portfolio-document-end__wordmark" role="img" aria-label="KiT Works" />
-            <span lang="en">END OF CAREER RECORD</span>
-          </div>
-          <p>{careerRecord.experiences.length} RECORDS / CAREER 2019—NOW / UPDATED {careerRecord.updated}</p>
-        </footer>
+        <DocumentFooter meta={careerRecord.experiences.length + " RECORDS / CAREER 2019—NOW / UPDATED " + careerRecord.updated} />
       </div>
     );
   }
@@ -786,6 +773,7 @@ function PanelContent({
             ))}
           </ol>
         </div>
+        <DocumentFooter meta="05 STEPS / BUILD SEQUENCE / KIT WORKS" />
       </div>
     );
   }
@@ -807,6 +795,7 @@ function PanelContent({
           <span><small>02 / PRACTICE</small><b>DESIGN + CODE</b><em>見た目と実装を同じ机で考える</em></span>
           <span><small>03 / DIALOGUE</small><b>PLAIN JAPANESE</b><em>専門用語を整理しながら進める</em></span>
         </div>
+        <DocumentFooter meta="INDEPENDENT PRACTICE / JAPAN / 2026" />
       </div>
     );
   }
@@ -835,6 +824,7 @@ function PanelContent({
             ))}
           </div>
         </div>
+        <DocumentFooter meta="03 PRINCIPLES / OPERATING APPROACH / KIT WORKS" />
       </div>
     );
   }
@@ -865,6 +855,7 @@ function PanelContent({
             ))}
           </div>
         </div>
+        <DocumentFooter meta="04 QUESTIONS / FAQ / KIT WORKS" />
       </div>
     );
   }
@@ -891,6 +882,7 @@ function PanelContent({
             </button>
           </form>
         </div>
+        <DocumentFooter meta="LOCAL BRIEF / NO TRANSMISSION / KIT WORKS" />
       </div>
     );
   }
@@ -911,6 +903,7 @@ function PanelContent({
           <ScheduleGate />
         </div>
         <p className="availability-view__note"><span lang="en">MANUAL CONFIRMATION</span> 自動で空き状況を表示せず、内容ごとに個別確認します。</p>
+        <DocumentFooter meta="SCHEDULE / AFTER BRIEF / KIT WORKS" />
       </div>
     );
   }
@@ -932,6 +925,7 @@ function PanelContent({
         <article><span>03</span><b>MOTION</b><p>押下位置から展開する遷移</p></article>
         <article><span>04</span><b>CODE</b><p>レスポンシブと操作性を実装</p></article>
       </section>
+      <DocumentFooter meta="SYSTEM INFO / SITE RECORD / 2026" />
     </div>
   );
 }
@@ -1017,5 +1011,18 @@ function SystemArtifact() {
       </div>
       <div className="system-readout"><span>INPUT<br /><b>IDEA</b></span><i>→</i><span>OUTPUT<br /><b>EXPERIENCE</b></span></div>
     </aside>
+  );
+}
+
+
+function DocumentFooter({ meta }: { meta: string }) {
+  return (
+    <footer className="portfolio-document-end">
+      <div className="portfolio-document-end__signature">
+        <span className="portfolio-document-end__wordmark" role="img" aria-label="KiT Works" />
+        <span lang="en">END OF DOCUMENT</span>
+      </div>
+      <p>{meta}</p>
+    </footer>
   );
 }
