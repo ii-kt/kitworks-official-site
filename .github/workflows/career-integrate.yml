@@ -1,0 +1,470 @@
+name: Integrate Career record
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/career-integrate.yml
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Build Career content
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          career_data = r'''export const careerRecord = {
+  updated: "2026.08",
+  profile: {
+    name: "飯野 海斗",
+    experience: "IT業界 約7年",
+    form: "KiT Works / 個人事業主",
+    focus: "AI・RAG / PM・PMO / PL / ソフトウェア開発",
+  },
+  summary:
+    "2019年からIT業界で約7年。C/C++を中心とした車載・組み込み開発、Pythonによるデータ処理・クラウド連携、ログ管理基盤移行を経験したうえで、PL、顧客折衝、要件・仕様策定、PMO、成果物品質管理・トレーサビリティ管理へ担当範囲を拡大。2026年5月にKiT Worksとして独立し、現在は大手製造業向けのAI/RAG活用・AI製品開発と、AI-PMプロジェクトのPM・開発推進に従事しています。",
+  strengths: [
+    {
+      number: "01",
+      title: "PM / PL / プロジェクト推進",
+      lead: "進捗、課題、品質、成果物、会議体を整理し、プロジェクトが前に進む状態を整えます。",
+      points: ["5名チームのタスク管理", "Jiraでのチケット作成・担当割り振り・進捗確認", "週次報告・リーダー会資料作成", "顧客折衝・合意形成"],
+    },
+    {
+      number: "02",
+      title: "成果物品質 / トレーサビリティ",
+      lead: "基本設計、要求仕様書、要件定義書、画面仕様書などの成果物品質と整合性を確認します。",
+      points: ["成果物レビュー・監査", "トレーサビリティ作成・管理・監査", "レビュー観点整理", "作成チームへのフィードバック"],
+    },
+    {
+      number: "03",
+      title: "要件整理 / 顧客折衝 / 仕様策定",
+      lead: "曖昧な要望を、仕様、設計、タスク、テスト観点へ落とし込みます。",
+      points: ["国内外担当者との仕様調整", "要件定義・仕様策定", "設計からテストまでの一貫対応", "認識齟齬・手戻りの抑制"],
+    },
+    {
+      number: "04",
+      title: "AI / RAG / 仕様書探索",
+      lead: "生成AIを単体利用で終わらせず、検索、評価、業務フローまで含めて実務へ組み込みます。",
+      points: ["RAG型仕様書チャットボット", "LangChain / LangGraph / MCP", "Box連携検索・Slack要約", "AI出力の再現性・品質安定化"],
+    },
+    {
+      number: "05",
+      title: "車載 / 組み込み開発",
+      lead: "C/C++を中心に、車載・組み込み領域で要件定義から評価まで経験しています。",
+      points: ["AUTOSAR準拠DIAG機能", "CANoe / DaVinci", "MATLAB / Simulink", "ドライバ開発・結合試験設計"],
+    },
+    {
+      number: "06",
+      title: "Python / データ / ログ",
+      lead: "Pythonによるデータ処理、AWS連携、ログ管理基盤移行、監視・可視化設計を経験しています。",
+      points: ["Pythonデータ抽出・分析", "AWSクラウド転送", "Datadog → Splunk移行", "SPL変換・ダッシュボード・アラート設計"],
+    },
+  ],
+  employments: [
+    {
+      period: "2019/04 - 2022/04",
+      company: "PCIソリューションズ株式会社",
+      role: "エンベデッドソリューション事業部",
+      summary: "車載・組み込み、ネットワーク機器、ストレージ製品、AUTOSAR開発に従事。開発メンバーからプロジェクトリーダーまで経験。",
+    },
+    {
+      period: "2022/04 - 2026/04",
+      company: "アルテンジャパン株式会社",
+      role: "技術コンサルティング職 / ITコンサルティング職",
+      summary: "決済、車載、ログ管理基盤、製造業向け開発支援を経験。後半はPMO、成果物確認・検収、トレーサビリティ、品質・プロセス改善を担当。",
+    },
+    {
+      period: "2026/05/01 - 現在",
+      company: "KiT Works",
+      role: "個人事業主",
+      summary: "AI/RAG活用、AI製品開発、PM・開発推進を中心に業務を実施。大手製造業向けAI業務とAI-PMプロジェクトに参画。",
+    },
+  ],
+  experiences: [
+    {
+      number: "01",
+      period: "2026/08 - 現在",
+      title: "AI-PMプロジェクト推進・開発",
+      domain: "AI / プロダクト開発 / PM",
+      role: "PM / 開発推進",
+      overview: "PM業務のうち、関係者間のハブ機能や進捗・方針整理など高負荷な領域をAIで支援するAI-PMプロジェクト。",
+      scope: "現場進捗・方針・期限の整理、既存設計の把握、エグゼクティブ向け設計整理、ロードマップ検討、プロトタイピング方針、Gitリポジトリ共有・開発推進を担当。",
+      result: "PMと開発のハブとしてプロジェクトを推進中。フェーズ1に向けた方針・ロードマップ・設計整理を進めています。",
+      tools: ["Git", "生成AI", "AI-PM", "設計ドキュメント", "プロトタイピング"],
+    },
+    {
+      number: "02",
+      period: "2026/05 - 現在",
+      title: "大手製造業向け AI/RAG活用・AI製品開発支援",
+      domain: "製造 / 自動車・車載 / AI",
+      role: "AI活用支援 / RAG設計・構築 / AI案件PM",
+      overview: "大手製造業の開発現場で、仕様書探索、生成AI活用、AI製品開発を支援。独立後のCSC関連業務ではAI領域を担当。",
+      scope: "Excel仕様書、要求仕様書、要件定義書、画面仕様書を対象に、LangChain / LangGraphによるRAG、参照範囲制御、Box連携検索、Slack要約、プロンプト調整、回答品質評価を実施。5名体制のAI案件PM、Jira連携の進行管理・WBS支援ツール内製、AI駆動開発ワークショップの企画・主催にも対応。",
+      result: "仕様探索・確認業務の効率化、複数PJへの展開、AI出力の再現性・品質安定化、PoCから業務適用までの推進を支援。",
+      tools: ["RAG", "LangChain", "LangGraph", "MCP", "Box", "Slack", "Jira", "ChatGPT", "Anthropic Claude", "Codex", "Claude Code", "AGENTS.md", "Skills"],
+    },
+    {
+      number: "03",
+      period: "2024/12 - 2026/04",
+      title: "大手製造業向け 開発プロセス適用・成果物監査・PMO支援",
+      domain: "製造 / 自動車・車載 / PMO",
+      role: "チームリード / PMO支援 / 成果物品質管理",
+      overview: "大手製造業向け開発案件で、開発プロセス、成果物品質、進捗・課題管理を整理し、プロジェクト推進を支援。",
+      scope: "5名チームのタスク管理、基本設計・要求仕様書・要件定義書・画面仕様書の成果物確認、トレーサビリティ作成・管理・監査、Jiraでの進捗管理、週次報告、作成チームへのフィードバックを担当。",
+      result: "進捗・課題の可視化、成果物品質確認、プロセス標準化、チーム運営を支援。",
+      tools: ["Jira", "Slack", "Confluence", "VSCode", "PlantUML"],
+    },
+    {
+      number: "04",
+      period: "2024/04 - 2024/11",
+      title: "大手輸送用機器メーカー向けマウンター機開発",
+      domain: "製造 / 輸送用機器",
+      role: "開発担当 / 顧客折衝・仕様策定",
+      overview: "顧客要望を実装可能な仕様へ落とし込み、C++とC#間のデータ連携処理を開発。",
+      scope: "顧客要望の整理、仕様策定、設計、実装、テストを担当。C++とC#間のデータコンバート処理について、仕様理解から実装・動作確認まで対応。",
+      result: "仕様合意から実装・検証まで一連の開発を担当し、顧客側と開発側の認識合わせを推進。",
+      tools: ["C++", "C#", "Redmine", "Visual Studio", "BitBucket", "Slack", "Teams", "Lightning Review"],
+    },
+    {
+      number: "05",
+      period: "2023/12 - 2024/03",
+      title: "統合ログ管理プラットフォーム導入支援",
+      domain: "IT / ログ管理 / 監視基盤",
+      role: "データエンジニア / 導入支援",
+      overview: "DatadogからSplunkへのログ管理基盤移行を支援。",
+      scope: "既存Datadogクエリの解析、Splunk SPLへの変換、ダッシュボードおよびアラート機能の設計・実装を主導。",
+      result: "移行後も監視・可視化を継続できる状態を整備。",
+      tools: ["Splunk", "Datadog", "SPL", "DQL", "Amazon WorkSpaces"],
+    },
+    {
+      number: "06",
+      period: "2022/07 - 2023/11",
+      title: "カーナビシステムのラジオ機能開発",
+      domain: "自動車 / 車載 / 組み込み",
+      role: "開発担当 / 顧客折衝",
+      overview: "国内および北欧向けカーナビのラジオ機能開発。",
+      scope: "国内外担当者との仕様策定・調整、C/C++による設計・実装・テスト、CANoe等を用いた動作確認を担当。",
+      result: "認識齟齬を抑えながら、顧客要望を実装可能な仕様へ落とし込み、実装・検証まで対応。",
+      tools: ["C", "C++", "git", "VSCode", "CANoe", "VirtualBox"],
+    },
+    {
+      number: "07",
+      period: "2022/04 - 2022/06",
+      title: "大手決済代行会社のシステム導入支援",
+      domain: "金融 / 決済",
+      role: "開発メンバー",
+      overview: "大手決済代行会社のシステム導入案件で、売上分析システムの導入を支援。",
+      scope: "Confluenceを用いた開発プロセスの設計・確立、作業手順整理、Pythonによるデータ抽出・分析スクリプト作成を担当。",
+      result: "導入作業の手順とプロセスを整備し、データ抽出・分析作業を支援。",
+      tools: ["Python", "Confluence"],
+    },
+    {
+      number: "08",
+      period: "2021/08 - 2022/04",
+      title: "画像センサ開発（AUTOSAR）",
+      domain: "自動車 / 車載 / 組み込み",
+      role: "プロジェクトリーダー",
+      overview: "AUTOSAR準拠の次世代画像センサ開発でDIAG機能を担当。",
+      scope: "メンバーのタスク管理、進捗管理、技術フォローを行いながら、DIAG機能の要件定義、設計、実装、評価まで一貫して担当。",
+      result: "技術面と管理面の両方から開発を推進し、要件定義から評価まで完遂。",
+      tools: ["C", "AUTOSAR", "CANoe", "DaVinci Configurator", "DaVinci Developer", "Subversion", "git", "Redmine"],
+    },
+    {
+      number: "09",
+      period: "2021/01 - 2021/07",
+      title: "ストレージ製品のクラウド連携機能開発",
+      domain: "ストレージ / クラウド連携",
+      role: "開発メンバー",
+      overview: "Linuxベースのストレージ製品からAWSクラウドへデータを転送する新機能を開発。",
+      scope: "Pythonを用いたAWSクラウド転送機能の設計・実装、Linux環境での状態監視、性能モニタ評価、データ転送処理の確認を担当。",
+      result: "クラウド転送、状態確認、性能確認を含む連携機能の開発・検証に対応。",
+      tools: ["Python", "Linux", "AWS", "git", "VirtualBox"],
+    },
+    {
+      number: "10",
+      period: "2020/07 - 2020/12",
+      title: "ネットワーク機器開発",
+      domain: "通信 / ネットワーク機器",
+      role: "開発メンバー",
+      overview: "キャリア / エンタープライズ向けハイエンドルータ・スイッチの制御ソフトウェア開発。",
+      scope: "Debian環境でC言語による40G/100Gイーサネット対応の新機能開発、品質改善、不具合修正、不具合解析を担当。",
+      result: "新機能開発と品質改善、不具合解析・修正に対応。",
+      tools: ["C", "Debian", "git", "GDB", "Jira", "Subversion"],
+    },
+    {
+      number: "11",
+      period: "2020/05 - 2020/06",
+      title: "ボディ系ECU制御開発 / モデル検証",
+      domain: "自動車 / 車載 / モデルベース開発",
+      role: "開発メンバー",
+      overview: "モデルベース開発におけるECU制御モデルの品質保証業務。",
+      scope: "SimulinkモデルのBack-to-Back検証、MATLABによる試験ハーネス作成とテスト実行を担当。",
+      result: "モデルと実装結果の整合性確認、テスト実行による品質検証に対応。",
+      tools: ["MATLAB", "Simulink"],
+    },
+    {
+      number: "12",
+      period: "2020/04",
+      title: "AWSおよびモデルベース開発研修",
+      domain: "研修 / Cloud / MBD",
+      role: "研修生",
+      overview: "AWSとモデルベース開発の基礎研修。",
+      scope: "AWS主要サービスの基礎、MATLAB / Simulinkによるモデルベース開発の基礎を習得。",
+      result: "クラウドおよびモデルベース開発の基礎知識を習得。",
+      tools: ["AWS", "MATLAB", "Simulink"],
+    },
+    {
+      number: "13",
+      period: "2019/09 - 2020/03",
+      title: "カーナビゲーション開発",
+      domain: "自動車 / 車載",
+      role: "開発メンバー",
+      overview: "車載向けカーナビゲーションの通信機能開発。",
+      scope: "コンフィグレーション設定資料作成、FBL-SPI通信ドライバ開発、単体テスト、FBL-Diag結合試験設計、CAN通信結合試験を担当。",
+      result: "通信機能の実装から単体・結合試験まで一連の工程に対応。",
+      tools: ["C", "Visual Studio"],
+    },
+    {
+      number: "14",
+      period: "2019/04 - 2019/08",
+      title: "新入社員向け技術研修",
+      domain: "研修 / 組み込み",
+      role: "研修生 / プロジェクト演習PM",
+      overview: "C/C++、Linux、組み込み・車載開発の基礎研修。",
+      scope: "C/C++、Linux、オブジェクト指向、μITRON、AUTOSAR概論、TOPPERS/ATK2を用いたモデルカー開発演習に取り組み、プロジェクト演習ではPMとして進行整理を経験。",
+      result: "組み込み開発の基礎技術と、チーム演習での進行管理を習得。",
+      tools: ["C", "C++", "Linux", "μITRON", "AUTOSAR", "TOPPERS/ATK2"],
+    },
+  ],
+  activities: [
+    {
+      title: "AI駆動開発の登壇経験",
+      body: "AIを用いた自作アプリ開発について登壇。個人事業の経理簡略化・自動化を目的とした簡易アプリを、Codex、Google Drive、Claude Codeを用いて開発した事例を発表。",
+      tools: ["Codex", "Google Drive", "Claude Code"],
+    },
+    {
+      title: "海外会議向け通訳・翻訳支援ツール",
+      body: "海外担当者・英語話者との会議時に、生成AI、翻訳・音声関連ツール、API連携を用いた通訳・翻訳支援ツールを実装し、会議理解と言語面の負荷軽減を支援。",
+      tools: ["生成AI", "翻訳・音声関連ツール", "API連携"],
+    },
+    {
+      title: "ローカルLLMの業務適用検証",
+      body: "クラウド型AIだけでなくローカル環境でのLLM利用も検証し、業務適用可能性を確認。",
+      tools: ["HuggingFace", "Qwen", "ローカルLLM"],
+    },
+    {
+      title: "資料作成・調査・論点整理への生成AI活用",
+      body: "資料作成、調査、要約、論点整理、レビュー観点整理に生成AIを活用し、調査・レビュー業務の効率化を支援。",
+      tools: ["ChatGPT", "Copilot", "Anthropic Claude"],
+    },
+  ],
+  skills: [
+    { title: "AI / RAG / Automation", skills: ["RAG", "LangChain", "LangGraph", "MCP", "ChatGPT", "Copilot", "Anthropic Claude", "Codex", "Claude Code", "HuggingFace", "Qwen", "ローカルLLM", "API連携", "Box連携検索", "Slack要約", "評価LLM", "セルフリフレクション", "AGENTS.md", "Skills", "プロンプト設計", "AI駆動開発", "PlantUML"] },
+    { title: "PM / Collaboration / Quality", skills: ["AI案件PM", "PMO", "PL", "WBS / 進行管理", "Jira", "Confluence", "Slack", "Teams", "Redmine", "BitBucket", "Lightning Review", "成果物監査", "トレーサビリティ"] },
+    { title: "Programming", skills: ["C", "C++", "Python", "C#", "Java基礎"] },
+    { title: "Data / Log / Cloud", skills: ["AWS", "Amazon WorkSpaces", "Splunk", "Datadog", "SPL", "DQL", "Linux"] },
+    { title: "Embedded / Automotive", skills: ["AUTOSAR", "CANoe", "DaVinci Configurator", "DaVinci Developer", "MATLAB", "Simulink", "μITRON", "TOPPERS/ATK2"] },
+    { title: "Development Tools", skills: ["git", "Subversion", "GDB", "Visual Studio", "VSCode", "VirtualBox"] },
+    { title: "Web / CMS", skills: ["WordPress", "HTML", "CSS", "JavaScript", "SEOメタ情報", "OGP", "sitemap.xml", "robots.txt"] },
+  ],
+  qualifications: [
+    "GUGA Generative AI Passport — 2025年10月認定",
+    "AWS Partner: Accreditation — 2020年4月取得",
+    "TOEIC公開テスト 510点 — 2019年3月取得 / 英語: 基礎〜日常会話レベル",
+  ],
+  selfPr: [
+    "車載・組み込み開発で培った実装経験を土台に、要件整理、仕様策定、設計、実装、テスト、評価まで、開発現場の工程を理解したうえでプロジェクトを支援できます。",
+    "顧客折衝や国内外担当者との仕様調整を含む案件を複数経験しており、曖昧な要望を仕様、設計、タスク、テスト観点に落とし込むことを得意としています。",
+    "PMO / PL領域では、進捗・課題管理、成果物監査、品質向上支援、会議体運営、チームメンバーのタスク管理、トレーサビリティ作成・管理・監査を経験しています。",
+    "近年はRAG、LangChain、LangGraph、MCP、Box連携検索、Slack要約、AGENTS.md、Skills、プロンプト設計などを活用し、開発現場の実務理解とAI活用の両面から、プロジェクト推進、プロセス改善、業務効率化に取り組んでいます。",
+  ],
+} as const;
+'''
+
+          career_block = r'''  if (panel === "capabilities") {
+    return (
+      <div className="panel-view business-view portfolio-view">
+        <PanelKicker en="CAREER / PROFESSIONAL RECORD" ja="職務経歴書" />
+        <section className="portfolio-hero">
+          <div className="portfolio-hero__copy">
+            <p className="editorial-eyebrow" lang="en">ENGINEERING / PM / AI</p>
+            <h1 id="panel-title">開発からPM、AIまで。<br /><em>約7年の職務経歴。</em></h1>
+            <p className="panel-lead">{careerRecord.summary}</p>
+          </div>
+          <aside className="portfolio-ledger portfolio-dossier" aria-label="職務経歴概要">
+            <span className="editorial-object-label" lang="en">PROFESSIONAL CAREER / 2019—NOW</span>
+            <h2>{careerRecord.profile.name}</h2>
+            <p>{careerRecord.profile.focus}</p>
+            <dl>
+              <div><dt>FORM</dt><dd>{careerRecord.profile.form}</dd></div>
+              <div><dt>EXPERIENCE</dt><dd>{careerRecord.profile.experience}</dd></div>
+              <div><dt>RECORDS</dt><dd>{careerRecord.experiences.length}</dd></div>
+              <div><dt>UPDATED</dt><dd>{careerRecord.updated}</dd></div>
+            </dl>
+            <div className="portfolio-ledger__stamp"><span>CAREER</span><b>RECORD</b><small>{careerRecord.experiences.length}</small></div>
+          </aside>
+        </section>
+
+        <section className="portfolio-stats" aria-label="職務プロフィール概要">
+          <article><span>IT業界経験</span><strong>約7年</strong><p>開発・PL・PMO・AI</p></article>
+          <article><span>現在の形態</span><strong>KiT Works</strong><p>2026/05/01〜 個人事業主</p></article>
+          <article><span>現在の軸</span><strong>AI/RAG × PM</strong><p>AI製品開発・プロジェクト推進</p></article>
+        </section>
+
+        <section className="portfolio-record-section portfolio-practice-section" aria-labelledby="career-summary-title">
+          <PortfolioSectionHeader number="01" en="PROFESSIONAL SUMMARY" ja="職務要約・得意分野" id="career-summary-title" copy="開発現場の実装経験を土台に、PM・品質・AIまで横断してきた職務上の強みです。" />
+          <div className="portfolio-principles">
+            {careerRecord.strengths.map((strength) => (
+              <article key={strength.number}>
+                <span>{strength.number} / CAPABILITY</span>
+                <h2>{strength.title}</h2>
+                <p>{strength.lead}</p>
+                <ul>{strength.points.map((point) => <li key={point}>{point}</li>)}</ul>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="portfolio-record-section portfolio-history-section" aria-labelledby="career-employment-title">
+          <PortfolioSectionHeader number="02" en="EMPLOYMENT" ja="所属経歴" id="career-employment-title" copy="所属会社と独立後の事業形態を、案件とは分けて記載しています。" />
+          <ol className="portfolio-timeline">
+            {careerRecord.employments.map((item, index) => (
+              <li key={`${item.period}-${item.company}`}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <time>{item.period}</time>
+                <div><small>{item.role}</small><h3>{item.company}</h3><p>{item.summary}</p></div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="portfolio-record-section portfolio-cases-section" aria-labelledby="career-experience-title">
+          <PortfolioSectionHeader number="03" en="PROFESSIONAL EXPERIENCE" ja="職務経歴" id="career-experience-title" copy="2019年の研修から現在のAIプロジェクトまで、案件・研修を省略せず時系列で記録しています。" />
+          <div className="portfolio-case-ledger">
+            {careerRecord.experiences.map((entry) => (
+              <article className="portfolio-case" key={entry.number}>
+                <header><span>RECORD {entry.number}</span><small>{entry.period} / {entry.domain}</small></header>
+                <div className="portfolio-case__title"><h3>{entry.title}</h3><p>{entry.role}</p></div>
+                <dl className="portfolio-case__details">
+                  <div><dt>OVERVIEW / 概要</dt><dd>{entry.overview}</dd></div>
+                  <div><dt>SCOPE / 担当</dt><dd>{entry.scope}</dd></div>
+                  <div><dt>RESULT / 成果・貢献</dt><dd>{entry.result}</dd></div>
+                </dl>
+                <ul className="portfolio-tagline" aria-label={`Record ${entry.number} の技術・ツール`}>
+                  {entry.tools.map((tool) => <li key={tool}>{tool}</li>)}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="portfolio-record-section portfolio-skills-section" aria-labelledby="career-skills-title">
+          <PortfolioSectionHeader number="04" en="SKILL INDEX" ja="技術・ツール" id="career-skills-title" copy="職務経歴書とスキルシートに記録されていた技術・ツールを領域別に統合しています。" />
+          <div className="portfolio-skill-index">
+            {careerRecord.skills.map((group, index) => (
+              <article key={group.title}><span>{String(index + 1).padStart(2, "0")}</span><h3>{group.title}</h3><p>{group.skills.join(" / ")}</p></article>
+            ))}
+          </div>
+        </section>
+
+        <section className="portfolio-record-section portfolio-scope-section" aria-labelledby="career-activities-title">
+          <PortfolioSectionHeader number="05" en="ACTIVITIES" ja="補足実績・資格・語学" id="career-activities-title" copy="案件履歴以外のAI活用実績、登壇、資格・語学をまとめています。" />
+          <div className="portfolio-scope-grid">
+            <div className="portfolio-ai-scope">
+              <div className="portfolio-support-ledger">
+                {careerRecord.activities.map((item, index) => (
+                  <article key={item.title}><span>{String(index + 1).padStart(2, "0")}</span><div><h3>{item.title}</h3><p>{item.body}</p><p>{item.tools.join(" / ")}</p></div></article>
+                ))}
+              </div>
+            </div>
+            <div className="portfolio-pmo-scope">
+              <p className="editorial-object-label" lang="en">QUALIFICATIONS / LANGUAGE</p>
+              <h3>資格・語学</h3>
+              <ol>{careerRecord.qualifications.map((item, index) => <li key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</li>)}</ol>
+            </div>
+          </div>
+        </section>
+
+        <section className="portfolio-record-section portfolio-history-section" aria-labelledby="career-selfpr-title">
+          <PortfolioSectionHeader number="06" en="SELF STATEMENT" ja="自己PR" id="career-selfpr-title" copy="職務経歴書・スキルシートの自己PRを、現在の職務状況に合わせて統合しています。" />
+          <div className="portfolio-pmo-scope">
+            {careerRecord.selfPr.map((paragraph) => <p key={paragraph}>{paragraph}</p>)}
+          </div>
+        </section>
+
+        <footer className="portfolio-document-end">
+          <div className="portfolio-document-end__signature">
+            <span className="portfolio-document-end__wordmark" role="img" aria-label="KiT Works" />
+            <span lang="en">END OF CAREER RECORD</span>
+          </div>
+          <p>{careerRecord.experiences.length} RECORDS / CAREER 2019—NOW / UPDATED {careerRecord.updated}</p>
+        </footer>
+      </div>
+    );
+  }'''
+
+          data_path = Path("app/career-data.ts")
+          data_path.write_text(career_data, encoding="utf-8")
+
+          page_path = Path("app/page.tsx")
+          page = page_path.read_text(encoding="utf-8")
+          import_anchor = '} from "./portfolio-data";\n'
+          career_import = 'import { careerRecord } from "./career-data";\n'
+          if career_import not in page:
+            if import_anchor not in page:
+              raise SystemExit("portfolio-data import anchor not found")
+            page = page.replace(import_anchor, import_anchor + career_import, 1)
+
+          start_marker = '  if (panel === "capabilities") {'
+          end_marker = '\n\n  if (panel === "process") {'
+          start = page.find(start_marker)
+          if start == -1:
+            raise SystemExit("Career block start not found")
+          end = page.find(end_marker, start)
+          if end == -1:
+            raise SystemExit("Career block end not found")
+          page = page[:start] + career_block + page[end:]
+          page_path.write_text(page, encoding="utf-8")
+          PY
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify production build
+        run: npm run build:pages
+
+      - name: Commit Career integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/career-integrate.yml
+          git add app/page.tsx app/career-data.ts
+          git commit -m "Build Career from professional records"
+          git push origin HEAD:main
+
+      - name: Remove workflow after failure
+        if: failure()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git reset --hard HEAD
+          git rm --ignore-unmatch .github/workflows/career-integrate.yml
+          if ! git diff --cached --quiet; then
+            git commit -m "Remove failed Career integration workflow"
+            git push origin HEAD:main
+          fi
