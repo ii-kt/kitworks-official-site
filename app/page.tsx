@@ -61,7 +61,7 @@ const nav: Array<{
     titleJa: "制作",
     links: [
       { label: "Portfolio", labelJa: "制作実績", panel: "portfolio" },
-      { label: "Capabilities", labelJa: "対応領域", panel: "capabilities", soon: true },
+      { label: "Career", labelJa: "職務経歴", panel: "capabilities", soon: true },
       { label: "Process", labelJa: "進め方", panel: "process", soon: true },
     ],
   },
@@ -88,7 +88,7 @@ const nav: Array<{
 const panelNames: Record<PanelId, { en: string; ja: string; status: string }> = {
   index: { en: "Welcome", ja: "KiT Worksの案内", status: "SINGLE VIEW / CLOSE TO RETURN" },
   portfolio: { en: "Portfolio", ja: "制作実績", status: "10 CASES / 2019—NOW / READ ONLY" },
-  capabilities: { en: "Capabilities", ja: "対応領域", status: "THREE SIGNALS AVAILABLE" },
+  capabilities: { en: "Career", ja: "職務経歴", status: "THREE SIGNALS AVAILABLE" },
   process: { en: "Process", ja: "進め方", status: "BUILD SEQUENCE / 05 STEPS" },
   about: { en: "About KiT Works", ja: "KiT Worksについて", status: "INDEPENDENT PRACTICE / JAPAN" },
   approach: { en: "Approach", ja: "制作方針", status: "THREE OPERATING PRINCIPLES" },
