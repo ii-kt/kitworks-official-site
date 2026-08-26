@@ -62,7 +62,7 @@ const nav: Array<{
     titleJa: "制作",
     links: [
       { label: "Portfolio", labelJa: "制作実績", panel: "portfolio" },
-      { label: "Career", labelJa: "職務経歴", panel: "capabilities", soon: true },
+      { label: "Career", labelJa: "職務経歴", panel: "capabilities" },
       { label: "Process", labelJa: "進め方", panel: "process", soon: true },
     ],
   },
@@ -89,7 +89,7 @@ const nav: Array<{
 const panelNames: Record<PanelId, { en: string; ja: string; status: string }> = {
   index: { en: "Welcome", ja: "KiT Worksの案内", status: "SINGLE VIEW / CLOSE TO RETURN" },
   portfolio: { en: "Portfolio", ja: "制作実績", status: "10 CASES / 2019—NOW / READ ONLY" },
-  capabilities: { en: "Career", ja: "職務経歴", status: "THREE SIGNALS AVAILABLE" },
+  capabilities: { en: "Career", ja: "職務経歴", status: "14 RECORDS / 2019—NOW / READ ONLY" },
   process: { en: "Process", ja: "進め方", status: "BUILD SEQUENCE / 05 STEPS" },
   about: { en: "About KiT Works", ja: "KiT Worksについて", status: "INDEPENDENT PRACTICE / JAPAN" },
   approach: { en: "Approach", ja: "制作方針", status: "THREE OPERATING PRINCIPLES" },
@@ -102,7 +102,7 @@ const panelNames: Record<PanelId, { en: string; ja: string; status: string }> = 
 const panelFiles: Record<PanelId, string> = {
   index: "WELCOME.TXT",
   portfolio: "PORTFOLIO.HTM",
-  capabilities: "CAPABILITIES.HTM",
+  capabilities: "CAREER.HTM",
   process: "PROCESS.HTM",
   about: "ABOUT.HTM",
   approach: "APPROACH.HTM",
@@ -630,7 +630,7 @@ function PanelContent({
           <div className="portfolio-principles">
             {careerRecord.strengths.map((strength) => (
               <article key={strength.number}>
-                <span>{strength.number} / CAPABILITY</span>
+                <span>{strength.number} / EXPERTISE</span>
                 <h2>{strength.title}</h2>
                 <p>{strength.lead}</p>
                 <ul>{strength.points.map((point) => <li key={point}>{point}</li>)}</ul>
@@ -664,6 +664,32 @@ function PanelContent({
                   <div><dt>SCOPE / 担当</dt><dd>{entry.scope}</dd></div>
                   <div><dt>RESULT / 成果・貢献</dt><dd>{entry.result}</dd></div>
                 </dl>
+                {"keyWorks" in entry && entry.keyWorks.length > 0 && (
+                  <section className="career-key-works" aria-label="Record 02 の主な担当実績">
+                    <p className="career-key-works__label" lang="en">KEY WORKS / 主な担当実績</p>
+                    <div className="career-key-works__tree">
+                      {entry.keyWorks.map((work) => (
+                        <details className="career-key-work" key={work.number}>
+                          <summary>
+                            <span className="career-key-work__index">{work.number}</span>
+                            <span className="career-key-work__heading"><b>{work.title}</b><small>{work.role}</small></span>
+                            <span className="career-key-work__toggle" aria-hidden="true" />
+                          </summary>
+                          <div className="career-key-work__body">
+                            <dl>
+                              <div><dt>ISSUE / 課題</dt><dd>{work.issue}</dd></div>
+                              <div><dt>SCOPE / 担当</dt><dd>{work.scope}</dd></div>
+                              <div><dt>RESULT / 成果・貢献</dt><dd>{work.result}</dd></div>
+                            </dl>
+                            <ul className="portfolio-tagline" aria-label={work.title + " の技術・ツール"}>
+                              {work.tools.map((tool) => <li key={tool}>{tool}</li>)}
+                            </ul>
+                          </div>
+                        </details>
+                      ))}
+                    </div>
+                  </section>
+                )}
                 <ul className="portfolio-tagline" aria-label={"Record " + entry.number + " の技術・ツール"}>
                   {entry.tools.map((tool) => <li key={tool}>{tool}</li>)}
                 </ul>

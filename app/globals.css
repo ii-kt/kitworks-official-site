@@ -3553,3 +3553,124 @@ button { -webkit-tap-highlight-color:transparent; }
   .profile-sheet { --profile-sheet-gutter:16px; }
 }
 /* End final mobile readability safeguards. */
+
+
+/* Career Record 02 expandable key works */
+.career-key-works {
+  grid-column:2 / -1;
+  margin-top:2px;
+  padding-top:20px;
+  border-top:1px solid var(--modern-line);
+}
+.career-key-works__label {
+  margin:0 0 12px;
+  color:var(--modern-accent);
+  font:700 8px/1.45 var(--font-sans),sans-serif;
+  letter-spacing:.12em;
+}
+.career-key-works__tree {
+  display:grid;
+  border-top:1px solid var(--modern-line);
+}
+.career-key-work {
+  border-bottom:1px solid var(--modern-line);
+}
+.career-key-work summary {
+  display:grid;
+  grid-template-columns:34px minmax(0,1fr) 18px;
+  gap:14px;
+  align-items:center;
+  min-height:64px;
+  padding:12px 8px;
+  color:var(--modern-ink);
+  cursor:pointer;
+  list-style:none;
+  transition:background .16s ease;
+}
+.career-key-work summary::-webkit-details-marker { display:none; }
+.career-key-work summary:hover,
+.career-key-work summary:focus-visible {
+  background:rgba(12,17,47,.045);
+  outline:0;
+}
+.career-key-work__index {
+  color:var(--modern-accent);
+  font:700 9px/1 var(--font-sans),sans-serif;
+  letter-spacing:.12em;
+}
+.career-key-work__heading { display:grid; gap:5px; }
+.career-key-work__heading b {
+  font-family:var(--font-jp-display),var(--font-jp-modern),serif;
+  font-size:14px;
+  font-weight:600;
+  line-height:1.55;
+  letter-spacing:-.015em;
+}
+.career-key-work__heading small {
+  color:var(--modern-muted);
+  font-size:10px;
+  line-height:1.5;
+}
+.career-key-work__toggle {
+  position:relative;
+  width:15px;
+  height:15px;
+  border:1px solid var(--modern-ink);
+  background:#fff;
+}
+.career-key-work__toggle::before,
+.career-key-work__toggle::after {
+  content:"";
+  position:absolute;
+  left:3px;
+  right:3px;
+  top:6px;
+  height:1px;
+  background:var(--modern-ink);
+}
+.career-key-work__toggle::after {
+  top:3px;
+  bottom:3px;
+  left:6px;
+  width:1px;
+  height:auto;
+}
+.career-key-work[open] .career-key-work__toggle::after { display:none; }
+.career-key-work__body {
+  padding:4px 8px 22px 56px;
+}
+.career-key-work__body dl {
+  display:grid;
+  gap:15px;
+  margin:0 0 18px;
+}
+.career-key-work__body dl div {
+  display:grid;
+  grid-template-columns:126px minmax(0,1fr);
+  gap:18px;
+  padding-bottom:15px;
+  border-bottom:1px solid var(--modern-line);
+}
+.career-key-work__body dl div:last-child { padding-bottom:0; border-bottom:0; }
+.career-key-work__body dt {
+  color:var(--modern-accent);
+  font:700 8px/1.45 var(--font-sans),sans-serif;
+  letter-spacing:.12em;
+}
+.career-key-work__body dd {
+  margin:0;
+  color:#44444b;
+  font-size:13px;
+  line-height:1.84;
+}
+.career-key-work__body .portfolio-tagline { grid-column:auto; }
+
+@media (max-width:1040px) and (min-width:761px) {
+  .career-key-works { grid-column:2; }
+}
+@media (max-width:760px) {
+  .career-key-works { grid-column:1; margin-top:0; }
+  .career-key-work summary { grid-template-columns:28px minmax(0,1fr) 16px; gap:10px; padding-inline:4px; }
+  .career-key-work__body { padding:2px 4px 20px 38px; }
+  .career-key-work__body dl div { grid-template-columns:1fr; gap:6px; }
+}
