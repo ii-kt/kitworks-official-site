@@ -1,0 +1,49 @@
+name: Integrate Career record
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/career-integrate.yml
+
+permissions:
+  contents: write
+
+jobs:
+  integrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+
+      - name: Patch Career panel
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('scripts/patch-career.mjs')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace('<li key={\\`${item.period}-${item.company}\\`}>', '<li key={item.period + "-" + item.company}>')
+          text = text.replace('aria-label={\\`Record ${entry.number} の技術・ツール\\`}', 'aria-label={"Record " + entry.number + " の技術・ツール"}')
+          path.write_text(text, encoding='utf-8')
+          PY
+          node scripts/patch-career.mjs
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify production build
+        run: npm run build:pages
+
+      - name: Commit Career integration
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .github/workflows/career-integrate.yml scripts/patch-career.mjs
+          git add app/page.tsx app/career-data.ts
+          git commit -m "Build Career from professional records"
+          git push origin HEAD:main
