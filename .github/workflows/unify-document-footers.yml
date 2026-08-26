@@ -49,19 +49,18 @@ jobs:
               'process': '<DocumentFooter meta="05 STEPS / BUILD SEQUENCE / KIT WORKS" />',
               'about': '<DocumentFooter meta="INDEPENDENT PRACTICE / JAPAN / 2026" />',
               'approach': '<DocumentFooter meta="03 PRINCIPLES / OPERATING APPROACH / KIT WORKS" />',
-              'faq': '<DocumentFooter meta="FAQ / KIT WORKS / READ ONLY" />',
+              'faq': '<DocumentFooter meta="04 QUESTIONS / FAQ / KIT WORKS" />',
               'project': '<DocumentFooter meta="LOCAL BRIEF / NO TRANSMISSION / KIT WORKS" />',
               'availability': '<DocumentFooter meta="SCHEDULE / AFTER BRIEF / KIT WORKS" />',
-              'system': '<DocumentFooter meta="SYSTEM INFO / SITE RECORD / 2026" />',
           }
 
           for panel, footer in footers.items():
               marker = f'  if (panel === "{panel}") {{'
               start = text.index(marker)
               next_if = text.find('\n  if (panel === "', start + len(marker))
-              end = next_if if next_if != -1 else text.find('\n}\n\nfunction ', start)
+              end = next_if if next_if != -1 else text.find('\n  return (\n    <div className="panel-view business-view system-view">', start)
               if end == -1:
-                  end = len(text)
+                  raise SystemExit(f'Could not find block end for {panel}')
               block = text[start:end]
               close = '\n      </div>\n    );'
               pos = block.rfind(close)
@@ -69,6 +68,17 @@ jobs:
                   raise SystemExit(f'Could not find root close for {panel}')
               insert_at = start + pos
               text = text[:insert_at] + f'\n        {footer}' + text[insert_at:]
+
+          system_marker = '  return (\n    <div className="panel-view business-view system-view">'
+          system_start = text.index(system_marker)
+          system_end = text.index('\n}\n\nfunction PanelKicker', system_start)
+          system_block = text[system_start:system_end]
+          system_close = '\n    </div>\n  );'
+          system_pos = system_block.rfind(system_close)
+          if system_pos == -1:
+              raise SystemExit('Could not find system root close')
+          system_insert = system_start + system_pos
+          text = text[:system_insert] + '\n      <DocumentFooter meta="SYSTEM INFO / SITE RECORD / 2026" />' + text[system_insert:]
 
           component = '''\n\nfunction DocumentFooter({ meta }: { meta: string }) {\n  return (\n    <footer className="portfolio-document-end">\n      <div className="portfolio-document-end__signature">\n        <span className="portfolio-document-end__wordmark" role="img" aria-label="KiT Works" />\n        <span lang="en">END OF DOCUMENT</span>\n      </div>\n      <p>{meta}</p>\n    </footer>\n  );\n}\n'''
           if 'function DocumentFooter(' in text:
