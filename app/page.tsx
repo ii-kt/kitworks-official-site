@@ -490,8 +490,8 @@ function PanelContent({
         <PanelKicker en="PORTFOLIO / PUBLISHED RECORD" ja="経歴・実績" />
         <section className="portfolio-hero">
           <div className="portfolio-hero__copy">
-            <p className="editorial-eyebrow" lang="en">AI / RAG / PM / DEVELOPMENT</p>
-            <h1 id="panel-title">AI/RAG × PMで、<br /><em>現場で使える<wbr />AIにする。</em></h1>
+            <p className="editorial-eyebrow" lang="en">AI / PM / ENGINEERING</p>
+            <h1 id="panel-title">AI × PM × ENGINEERING<br /><em>構想を、現場で動く<wbr />プロダクトへ。</em></h1>
             <p className="panel-lead">試作で実現可能性を示しながら、業務で使える状態まで進めます。RAG設計と参照範囲の制御、出力品質の評価設計、5名チームのAI案件PM、Jira運用と成果物監査まで対応します。</p>
           </div>
           <PortfolioLedger />
